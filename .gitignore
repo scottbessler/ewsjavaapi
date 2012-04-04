@@ -1,0 +1,30 @@
+syntax:glob
+
+*.class
+target
+.svn
+.metadata
+.DS_Store
+.gwt
+.gwt-tmp
+logs
+classes
+bin
+gen
+lucidweb*.launch
+RemoteSystemsTempFiles
+# when we are ready to not have these in source control we will uncomment
+.project
+.classpath
+.settings
+app.properties
+LucidIOS/*/xcuserdata/*
+LucidIOS/LucidIOS.xcodeproj*
+
+# Ignore log4j.properties except the one in LucidDAO test
+log4j.properties
+!LucidDAO/src/test/resources/log4j.properties
+
+tomcat
+tmp
+
