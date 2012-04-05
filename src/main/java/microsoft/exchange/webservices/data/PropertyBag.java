@@ -20,36 +20,36 @@ class PropertyBag implements IComplexPropertyChanged,
 		IComplexPropertyChangedDelegate {
 
 	/** The owner. */
-	private ServiceObject owner;
+	private final ServiceObject owner;
 
 	/** The is dirty. */
 	private boolean isDirty;
 
 	/** The loading. */
 	private boolean loading;
-	
+
 	/** The only summary properties requested. */
 	private boolean onlySummaryPropertiesRequested;
 
 	/** The loaded properties. */
-	private List<PropertyDefinition> loadedProperties = 
-		new ArrayList<PropertyDefinition>();
+	private final List<PropertyDefinition> loadedProperties =
+			new ArrayList<PropertyDefinition>();
 
 	/** The properties. */
-	private Map<PropertyDefinition, Object> properties = 
-		new HashMap<PropertyDefinition, Object>();
+	private final Map<PropertyDefinition, Object> properties =
+			new HashMap<PropertyDefinition, Object>();
 
 	/** The deleted properties. */
-	private Map<PropertyDefinition, Object> deletedProperties =
-		new HashMap<PropertyDefinition, Object>();
+	private final Map<PropertyDefinition, Object> deletedProperties =
+			new HashMap<PropertyDefinition, Object>();
 
 	/** The modified properties. */
-	private List<PropertyDefinition> modifiedProperties = 
-		new ArrayList<PropertyDefinition>();
+	private final List<PropertyDefinition> modifiedProperties =
+			new ArrayList<PropertyDefinition>();
 
 	/** The added properties. */
-	private List<PropertyDefinition> addedProperties =
-		new ArrayList<PropertyDefinition>();
+	private final List<PropertyDefinition> addedProperties =
+			new ArrayList<PropertyDefinition>();
 
 	/** The requested property set. */
 	private PropertySet requestedPropertySet;
@@ -73,7 +73,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @return A Map holding the bag's properties.
 	 */
 	protected Map<PropertyDefinition, Object> getProperties() {
-		return this.properties;
+		return properties;
 	}
 
 	/***
@@ -82,7 +82,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @return The owner of this bag.
 	 */
 	protected ServiceObject getOwner() {
-		return this.owner;
+		return owner;
 	}
 
 	/***
@@ -91,14 +91,13 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @return True if the bag has pending changes, false otherwise.
 	 */
 	protected boolean getIsDirty() {
-		int changes = this.modifiedProperties.size() +
-				 this.deletedProperties.size() + this.addedProperties.size();
-		return changes > 0 || this.isDirty;
+		int changes = modifiedProperties.size() +
+				deletedProperties.size() + addedProperties.size();
+		return changes > 0 || isDirty;
 	}
 
 	/***
-	 * Adds the specified property to the specified change list if it is not
-	 * already present.
+	 * Adds the specified property to the specified change list if it is not already present.
 	 * 
 	 * @param propertyDefinition
 	 *            The property to add to the change list.
@@ -112,7 +111,7 @@ class PropertyBag implements IComplexPropertyChanged,
 			changeList.add(propertyDefinition);
 		}
 	}
-	
+
 	/**
 	 * Checks if is property loaded.
 	 * 
@@ -122,11 +121,11 @@ class PropertyBag implements IComplexPropertyChanged,
 	 */
 	protected boolean isPropertyLoaded(PropertyDefinition propertyDefinition) {
 		// Is the property loaded?
-		if (this.loadedProperties.contains(propertyDefinition)) {
+		if (loadedProperties.contains(propertyDefinition)) {
 			return true;
 		} else {
 			// Was the property requested?
-			return this.isRequestedProperty(propertyDefinition);
+			return isRequestedProperty(propertyDefinition);
 		}
 	}
 
@@ -139,7 +138,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	 */
 	private boolean isRequestedProperty(PropertyDefinition propertyDefinition) {
 		// If no requested property set, then property wasn't requested.
-		if (this.requestedPropertySet == null) {
+		if (requestedPropertySet == null) {
 			return false;
 		}
 
@@ -149,16 +148,15 @@ class PropertyBag implements IComplexPropertyChanged,
 		// Otherwise, property had
 		// to be explicitly requested and needs to be listed in
 		// AdditionalProperties.
-		if (this.requestedPropertySet.getBasePropertySet() == BasePropertySet.FirstClassProperties) {
-			List<PropertyDefinition> firstClassProps = 
-				this.onlySummaryPropertiesRequested ? this
-					.getOwner().getSchema().getFirstClassSummaryProperties() :
-					 this.getOwner().getSchema().getFirstClassProperties();
+		if (requestedPropertySet.getBasePropertySet() == BasePropertySet.FirstClassProperties) {
+			List<PropertyDefinition> firstClassProps =
+					onlySummaryPropertiesRequested ? getOwner().getSchema().getFirstClassSummaryProperties() :
+													getOwner().getSchema().getFirstClassProperties();
 
 			return firstClassProps.contains(propertyDefinition) ||
-					 this.requestedPropertySet.contains(propertyDefinition);
+					requestedPropertySet.contains(propertyDefinition);
 		} else {
-			return this.requestedPropertySet.contains(propertyDefinition);
+			return requestedPropertySet.contains(propertyDefinition);
 		}
 	}
 
@@ -167,12 +165,11 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * 
 	 * @param propertyDefinition
 	 *            The property definition.
-	 * @return true if the specified property has been updated; otherwise,
-	 *         false.
+	 * @return true if the specified property has been updated; otherwise, false.
 	 */
 	protected boolean isPropertyUpdated(PropertyDefinition propertyDefinition) {
-		return this.modifiedProperties.contains(propertyDefinition) ||
-				 this.addedProperties.contains(propertyDefinition);
+		return modifiedProperties.contains(propertyDefinition) ||
+				addedProperties.contains(propertyDefinition);
 	}
 
 	/***
@@ -187,8 +184,8 @@ class PropertyBag implements IComplexPropertyChanged,
 	protected boolean tryGetProperty(PropertyDefinition propertyDefinition,
 			OutParam<Object> propertyValueOutParam) {
 		OutParam<ServiceLocalException> serviceExceptionOutParam =
-			new OutParam<ServiceLocalException>();
-		propertyValueOutParam.setParam(this.getPropertyValueOrException(
+				new OutParam<ServiceLocalException>();
+		propertyValueOutParam.setParam(getPropertyValueOrException(
 				propertyDefinition, serviceExceptionOutParam));
 		return serviceExceptionOutParam.getParam() == null;
 	}
@@ -203,43 +200,41 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @param propertyValueOutParam
 	 *            The property value.
 	 * @return True if property was retrieved.
-	 * @throws ArgumentException 
-	 * @throws ArgumentException 
-	 */	
-	protected <T> boolean tryGetPropertyType(Class<T> cls, 
+	 * @throws ArgumentException
+	 * @throws ArgumentException
+	 */
+	protected <T> boolean tryGetPropertyType(Class<T> cls,
 			PropertyDefinition propertyDefinition,
 			OutParam<T> propertyValue) throws ArgumentException {
-        // Verify that the type parameter and
-		//property definition's type are compatible.
-        if (!cls.isAssignableFrom(propertyDefinition.getType())){
-            String errorMessage = String.format(
-                Strings.PropertyDefinitionTypeMismatch,
-                EwsUtilities.getPrintableTypeName(propertyDefinition.getType()),
-                EwsUtilities.getPrintableTypeName(cls));
-            throw new ArgumentException(errorMessage, "propertyDefinition");
-        }
+		// Verify that the type parameter and
+		// property definition's type are compatible.
+		if (!cls.isAssignableFrom(propertyDefinition.getType())) {
+			String errorMessage = String.format(
+					Strings.PropertyDefinitionTypeMismatch,
+					EwsUtilities.getPrintableTypeName(propertyDefinition.getType()),
+					EwsUtilities.getPrintableTypeName(cls));
+			throw new ArgumentException(errorMessage, "propertyDefinition");
+		}
 
-        OutParam<Object> value = new OutParam<Object>();  
-        boolean result = this.tryGetProperty(propertyDefinition, value);
-        if(result) {
-        	propertyValue.setParam((T)value.getParam());
-        }
-        else {
-        	propertyValue.setParam(null);
-        }
+		OutParam<Object> value = new OutParam<Object>();
+		boolean result = tryGetProperty(propertyDefinition, value);
+		if (result) {
+			propertyValue.setParam((T) value.getParam());
+		}
+		else {
+			propertyValue.setParam(null);
+		}
 
-        return result;
-    }
-	
-	
+		return result;
+	}
+
 	/***
 	 * Gets the property value.
 	 * 
 	 * @param propertyDefinition
 	 *            The property definition.
 	 * @param serviceExceptionOutParam
-	 *            Exception that would be raised if there's an error retrieving
-	 *            the property.
+	 *            Exception that would be raised if there's an error retrieving the property.
 	 * @return Property value. May be null.
 	 */
 	private Object getPropertyValueOrException(
@@ -249,7 +244,7 @@ class PropertyBag implements IComplexPropertyChanged,
 		propertyValueOutParam.setParam(null);
 		serviceExceptionOutParam.setParam(null);
 
-		if (propertyDefinition.getVersion().ordinal() > this.getOwner()
+		if (propertyDefinition.getVersion().ordinal() > getOwner()
 				.getService().getRequestedServerVersion().ordinal()) {
 			serviceExceptionOutParam.setParam(new ServiceVersionException(
 					String.format(
@@ -259,7 +254,7 @@ class PropertyBag implements IComplexPropertyChanged,
 			return null;
 		}
 
-		if (this.tryGetValue(propertyDefinition, propertyValueOutParam)) {
+		if (tryGetValue(propertyDefinition, propertyValueOutParam)) {
 			// If the requested property is in the bag, return it.
 			return propertyValueOutParam.getParam();
 		} else {
@@ -267,32 +262,32 @@ class PropertyBag implements IComplexPropertyChanged,
 					.hasFlag(PropertyDefinitionFlags.AutoInstantiateOnRead)) {
 				EwsUtilities
 						.EwsAssert(
-								propertyDefinition instanceof 
+								propertyDefinition instanceof
 								ComplexPropertyDefinitionBase,
 								"PropertyBag.get_this[]",
 								"propertyDefinition is " +
-										 "marked with AutoInstantiateOnRead " +
-										 "but is not a descendant " +
-										 "of ComplexPropertyDefinitionBase");
+										"marked with AutoInstantiateOnRead " +
+										"but is not a descendant " +
+										"of ComplexPropertyDefinitionBase");
 
 				// The requested property is an auto-instantiate-on-read
 				// property
-				ComplexPropertyDefinitionBase complexPropertyDefinition = 
-					(ComplexPropertyDefinitionBase)propertyDefinition;
+				ComplexPropertyDefinitionBase complexPropertyDefinition =
+						(ComplexPropertyDefinitionBase) propertyDefinition;
 				Object propertyValue = complexPropertyDefinition
-						.createPropertyInstance(this.getOwner());
+						.createPropertyInstance(getOwner());
 				propertyValueOutParam.setParam(propertyValue);
 				if (propertyValue != null) {
-					this.initComplexProperty((ComplexProperty)propertyValue);
-					this.properties.put(propertyDefinition, propertyValue);
+					initComplexProperty((ComplexProperty) propertyValue);
+					properties.put(propertyDefinition, propertyValue);
 				}
 			} else {
 				// If the property is not the Id (we need to let developers read
 				// the Id when it's null) and if has
 				// not been loaded, we throw.
-				if (propertyDefinition != this.getOwner()
+				if (propertyDefinition != getOwner()
 						.getIdPropertyDefinition()) {
-					if (!this.isPropertyLoaded(propertyDefinition)) {
+					if (!isPropertyLoaded(propertyDefinition)) {
 						serviceExceptionOutParam
 								.setParam(new ServiceObjectPropertyException(
 										Strings.
@@ -304,10 +299,9 @@ class PropertyBag implements IComplexPropertyChanged,
 					// Non-nullable properties (int, bool, etc.) must be
 					// assigned or loaded; cannot return null value.
 					if (!propertyDefinition.isNullable()) {
-						String errorMessage = this
-								.isRequestedProperty(propertyDefinition) ? 
-										Strings.ValuePropertyNotLoaded :
-								 Strings.ValuePropertyNotAssigned;
+						String errorMessage = isRequestedProperty(propertyDefinition) ?
+																						Strings.ValuePropertyNotLoaded :
+																						Strings.ValuePropertyNotAssigned;
 						serviceExceptionOutParam
 								.setParam(new ServiceObjectPropertyException(
 										errorMessage, propertyDefinition));
@@ -319,14 +313,12 @@ class PropertyBag implements IComplexPropertyChanged,
 	}
 
 	/***
-	 * Sets the isDirty flag to true and triggers dispatch of the change event
-	 * to the owner of the property bag. Changed must be called whenever an
-	 * operation that changes the state of this property bag is performed (e.g.
-	 * adding or removing a property).
+	 * Sets the isDirty flag to true and triggers dispatch of the change event to the owner of the property bag. Changed must be called whenever an operation
+	 * that changes the state of this property bag is performed (e.g. adding or removing a property).
 	 */
 	protected void changed() {
-		this.isDirty = true;
-		this.getOwner().changed();
+		isDirty = true;
+		getOwner().changed();
 	}
 
 	/***
@@ -337,10 +329,8 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @return True if the specified property is in the bag, false otherwise.
 	 */
 	protected boolean contains(PropertyDefinition propertyDefinition) {
-		return this.properties.containsKey(propertyDefinition);
+		return properties.containsKey(propertyDefinition);
 	}
-
-	
 
 	/***
 	 * Tries to retrieve the value of the specified property.
@@ -353,8 +343,8 @@ class PropertyBag implements IComplexPropertyChanged,
 	 */
 	protected boolean tryGetValue(PropertyDefinition propertyDefinition,
 			OutParam<Object> propertyValueOutParam) {
-		if (this.properties.containsKey(propertyDefinition)) {
-			propertyValueOutParam.setParam(this.properties
+		if (properties.containsKey(propertyDefinition)) {
+			propertyValueOutParam.setParam(properties
 					.get(propertyDefinition));
 			return true;
 		} else {
@@ -370,15 +360,15 @@ class PropertyBag implements IComplexPropertyChanged,
 	 *            The property that changes.
 	 */
 	protected void propertyChanged(ComplexProperty complexProperty) {
-		Iterator<Entry<PropertyDefinition, Object>> it = this.properties
+		Iterator<Entry<PropertyDefinition, Object>> it = properties
 				.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<PropertyDefinition, Object> keyValuePair = it.next();
 			if (keyValuePair.getValue().equals(complexProperty)) {
-				if (!this.deletedProperties.containsKey(keyValuePair.getKey())) {
+				if (!deletedProperties.containsKey(keyValuePair.getKey())) {
 					addToChangeList(keyValuePair.getKey(),
-							this.modifiedProperties);
-					this.changed();
+							modifiedProperties);
+					changed();
 				}
 			}
 		}
@@ -391,20 +381,20 @@ class PropertyBag implements IComplexPropertyChanged,
 	 *            The property to delete.
 	 */
 	protected void deleteProperty(PropertyDefinition propertyDefinition) {
-		if (!this.deletedProperties.containsKey(propertyDefinition)) {
+		if (!deletedProperties.containsKey(propertyDefinition)) {
 			Object propertyValue = null;
 
-			if (this.properties.containsKey(propertyDefinition)) {
-				propertyValue = this.properties.get(propertyDefinition);
+			if (properties.containsKey(propertyDefinition)) {
+				propertyValue = properties.get(propertyDefinition);
 			}
 
-			this.properties.remove(propertyDefinition);
-			this.modifiedProperties.remove(propertyDefinition);
-			this.deletedProperties.put(propertyDefinition, propertyValue);
+			properties.remove(propertyDefinition);
+			modifiedProperties.remove(propertyDefinition);
+			deletedProperties.put(propertyDefinition, propertyValue);
 
 			if (propertyValue instanceof ComplexProperty) {
-				ComplexProperty complexProperty = 
-					(ComplexProperty)propertyValue;
+				ComplexProperty complexProperty =
+						(ComplexProperty) propertyValue;
 				complexProperty.addOnChangeEvent(this);
 			}
 		}
@@ -414,32 +404,32 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * Clears the bag.
 	 */
 	protected void clear() {
-		this.clearChangeLog();
-		this.properties.clear();
-		this.loadedProperties.clear();
-		this.requestedPropertySet = null;
+		clearChangeLog();
+		properties.clear();
+		loadedProperties.clear();
+		requestedPropertySet = null;
 	}
 
 	/***
 	 * Clears the bag's change log.
 	 */
 	protected void clearChangeLog() {
-		this.deletedProperties.clear();
-		this.modifiedProperties.clear();
-		this.addedProperties.clear();
+		deletedProperties.clear();
+		modifiedProperties.clear();
+		addedProperties.clear();
 
-		Iterator<Entry<PropertyDefinition, Object>> it = this.properties
+		Iterator<Entry<PropertyDefinition, Object>> it = properties
 				.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<PropertyDefinition, Object> keyValuePair = it.next();
 			if (keyValuePair.getValue() instanceof ComplexProperty) {
-				ComplexProperty complexProperty = (ComplexProperty)keyValuePair
+				ComplexProperty complexProperty = (ComplexProperty) keyValuePair
 						.getValue();
 				complexProperty.clearChangeLog();
 			}
 		}
 
-		this.isDirty = false;
+		isDirty = false;
 	}
 
 	/**
@@ -448,8 +438,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @param reader
 	 *            The reader from which to read the properties.
 	 * @param clear
-	 *            Indicates whether the bag should be cleared before properties
-	 *            are loaded.
+	 *            Indicates whether the bag should be cleared before properties are loaded.
 	 * @param requestedPropertySet
 	 *            The requested property set.
 	 * @param onlySummaryPropertiesRequested
@@ -461,13 +450,13 @@ class PropertyBag implements IComplexPropertyChanged,
 			PropertySet requestedPropertySet,
 			boolean onlySummaryPropertiesRequested) throws Exception {
 		if (clear) {
-			this.clear();
+			clear();
 		}
 
 		// Put the property bag in "loading" mode. When in loading mode, no
 		// checking is done
 		// when setting property values.
-		this.loading = true;
+		loading = true;
 
 		this.requestedPropertySet = requestedPropertySet;
 		this.onlySummaryPropertiesRequested = onlySummaryPropertiesRequested;
@@ -477,27 +466,27 @@ class PropertyBag implements IComplexPropertyChanged,
 				reader.read();
 
 				if (reader.getNodeType().getNodeType() == XMLNodeType.START_ELEMENT) {
-					OutParam<PropertyDefinition> propertyDefinitionOut = 
-						new OutParam<PropertyDefinition>();
+					OutParam<PropertyDefinition> propertyDefinitionOut =
+							new OutParam<PropertyDefinition>();
 					PropertyDefinition propertyDefinition;
 
-					if (this.getOwner().schema().tryGetPropertyDefinition(
+					if (getOwner().schema().tryGetPropertyDefinition(
 							reader.getLocalName(), propertyDefinitionOut)) {
 						propertyDefinition = propertyDefinitionOut.getParam();
 						propertyDefinition.loadPropertyValueFromXml(reader,
 								this);
 
-						this.loadedProperties.add(propertyDefinition);
+						loadedProperties.add(propertyDefinition);
 					} else {
 						reader.skipCurrentElement();
 					}
 				}
-			} while (!reader.isEndElement(XmlNamespace.Types, this.getOwner()
+			} while (!reader.isEndElement(XmlNamespace.Types, getOwner()
 					.getXmlElementName()));
 
-			this.clearChangeLog();
+			clearChangeLog();
 		} finally {
-			this.loading = false;
+			loading = false;
 		}
 	}
 
@@ -510,10 +499,10 @@ class PropertyBag implements IComplexPropertyChanged,
 	 *             the exception
 	 */
 	protected void writeToXml(EwsServiceXmlWriter writer) throws Exception {
-		writer.writeStartElement(XmlNamespace.Types, this.getOwner()
+		writer.writeStartElement(XmlNamespace.Types, getOwner()
 				.getXmlElementName());
 
-		Iterator<PropertyDefinition> it = this.getOwner().getSchema()
+		Iterator<PropertyDefinition> it = getOwner().getSchema()
 				.iterator();
 		while (it.hasNext()) {
 			PropertyDefinition propertyDefinition = it.next();
@@ -522,7 +511,7 @@ class PropertyBag implements IComplexPropertyChanged,
 			// properties to be set if they don't have the CanSet flag, but it
 			// doesn't hurt...
 			if (propertyDefinition.hasFlag(PropertyDefinitionFlags.CanSet)) {
-				if (this.contains(propertyDefinition)) {
+				if (contains(propertyDefinition)) {
 					propertyDefinition.writePropertyValueToXml(writer, this,
 							false /* isUpdateOperation */);
 				}
@@ -533,8 +522,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	}
 
 	/**
-	 * * Writes the EWS update operations corresponding to the changes that
-	 * occurred in the bag to XML.
+	 * * Writes the EWS update operations corresponding to the changes that occurred in the bag to XML.
 	 * 
 	 * @param writer
 	 *            The writer to write the updates to.
@@ -543,26 +531,26 @@ class PropertyBag implements IComplexPropertyChanged,
 	 */
 	protected void writeToXmlForUpdate(EwsServiceXmlWriter writer)
 			throws Exception {
-		writer.writeStartElement(XmlNamespace.Types, this.getOwner()
+		writer.writeStartElement(XmlNamespace.Types, getOwner()
 				.getChangeXmlElementName());
 
-		this.getOwner().getId().writeToXml(writer);
+		getOwner().getId().writeToXml(writer);
 
 		writer.writeStartElement(XmlNamespace.Types, XmlElementNames.Updates);
 
-		for (PropertyDefinition propertyDefinition : this.addedProperties) {
-			this.writeSetUpdateToXml(writer, propertyDefinition);
+		for (PropertyDefinition propertyDefinition : addedProperties) {
+			writeSetUpdateToXml(writer, propertyDefinition);
 		}
 
-		for (PropertyDefinition propertyDefinition : this.modifiedProperties) {
-			this.writeSetUpdateToXml(writer, propertyDefinition);
+		for (PropertyDefinition propertyDefinition : modifiedProperties) {
+			writeSetUpdateToXml(writer, propertyDefinition);
 		}
 
-		Iterator<Entry<PropertyDefinition, Object>> it = this.deletedProperties
+		Iterator<Entry<PropertyDefinition, Object>> it = deletedProperties
 				.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<PropertyDefinition, Object> property = it.next();
-			this.writeDeleteUpdateToXml(writer, property.getKey(), property
+			writeDeleteUpdateToXml(writer, property.getKey(), property
 					.getValue());
 		}
 
@@ -571,18 +559,16 @@ class PropertyBag implements IComplexPropertyChanged,
 	}
 
 	/***
-	 * Determines whether an EWS UpdateItem/UpdateFolder call is necessary to
-	 * save the changes that occurred in the bag.
+	 * Determines whether an EWS UpdateItem/UpdateFolder call is necessary to save the changes that occurred in the bag.
 	 * 
-	 * @return True if an UpdateItem/UpdateFolder call is necessary, false
-	 *         otherwise.
+	 * @return True if an UpdateItem/UpdateFolder call is necessary, false otherwise.
 	 */
 	protected boolean getIsUpdateCallNecessary() {
-		List<PropertyDefinition> propertyDefinitions = 
-			new ArrayList<PropertyDefinition>();
-		propertyDefinitions.addAll(this.addedProperties);
-		propertyDefinitions.addAll(this.modifiedProperties);
-		propertyDefinitions.addAll(this.deletedProperties.keySet());
+		List<PropertyDefinition> propertyDefinitions =
+				new ArrayList<PropertyDefinition>();
+		propertyDefinitions.addAll(addedProperties);
+		propertyDefinitions.addAll(modifiedProperties);
+		propertyDefinitions.addAll(deletedProperties.keySet());
 		for (PropertyDefinition propertyDefinition : propertyDefinitions) {
 			if (propertyDefinition.hasFlag(PropertyDefinitionFlags.CanUpdate)) {
 				return true;
@@ -592,9 +578,8 @@ class PropertyBag implements IComplexPropertyChanged,
 	}
 
 	/***
-	 * Initializes a ComplexProperty instance. When a property is inserted into
-	 * the bag, it needs to be initialized in order for changes that occur on
-	 * that property to be properly detected and dispatched.
+	 * Initializes a ComplexProperty instance. When a property is inserted into the bag, it needs to be initialized in order for changes that occur on that
+	 * property to be properly detected and dispatched.
 	 * 
 	 * @param complexProperty
 	 *            The ComplexProperty instance to initialize.
@@ -603,8 +588,8 @@ class PropertyBag implements IComplexPropertyChanged,
 		if (complexProperty != null) {
 			complexProperty.addOnChangeEvent(this);
 			if (complexProperty instanceof IOwnedProperty) {
-				IOwnedProperty ownedProperty = (IOwnedProperty)complexProperty;
-				ownedProperty.setOwner(this.getOwner());
+				IOwnedProperty ownedProperty = (IOwnedProperty) complexProperty;
+				ownedProperty.setOwner(getOwner());
 			}
 		}
 	}
@@ -627,28 +612,26 @@ class PropertyBag implements IComplexPropertyChanged,
 		// it
 		// doesn't hurt...
 		if (propertyDefinition.hasFlag(PropertyDefinitionFlags.CanUpdate)) {
-			Object propertyValue = this
-					.getObjectFromPropertyDefinition(propertyDefinition);
+			Object propertyValue = getObjectFromPropertyDefinition(propertyDefinition);
 
 			boolean handled = false;
 
 			if (propertyValue instanceof ICustomXmlUpdateSerializer) {
-				ICustomXmlUpdateSerializer updateSerializer = 
-					(ICustomXmlUpdateSerializer)propertyValue;
-				handled = updateSerializer.writeSetUpdateToXml(writer, this
-						.getOwner(), propertyDefinition);
+				ICustomXmlUpdateSerializer updateSerializer =
+						(ICustomXmlUpdateSerializer) propertyValue;
+				handled = updateSerializer.writeSetUpdateToXml(writer, getOwner(), propertyDefinition);
 			}
 
 			if (!handled) {
-				writer.writeStartElement(XmlNamespace.Types, this.getOwner()
+				writer.writeStartElement(XmlNamespace.Types, getOwner()
 						.getSetFieldXmlElementName());
 
 				propertyDefinition.writeToXml(writer);
 
-				writer.writeStartElement(XmlNamespace.Types, this.getOwner()
+				writer.writeStartElement(XmlNamespace.Types, getOwner()
 						.getXmlElementName());
 				propertyDefinition
-						.writePropertyValueToXml(writer, this, 
+						.writePropertyValueToXml(writer, this,
 								true /* isUpdateOperation */);
 				writer.writeEndElement();
 
@@ -681,14 +664,13 @@ class PropertyBag implements IComplexPropertyChanged,
 			boolean handled = false;
 
 			if (propertyValue instanceof ICustomXmlUpdateSerializer) {
-				ICustomXmlUpdateSerializer updateSerializer = 
-					(ICustomXmlUpdateSerializer)propertyValue;
-				handled = updateSerializer.writeDeleteUpdateToXml(writer, this
-						.getOwner());
+				ICustomXmlUpdateSerializer updateSerializer =
+						(ICustomXmlUpdateSerializer) propertyValue;
+				handled = updateSerializer.writeDeleteUpdateToXml(writer, getOwner());
 			}
 
 			if (!handled) {
-				writer.writeStartElement(XmlNamespace.Types, this.getOwner()
+				writer.writeStartElement(XmlNamespace.Types, getOwner()
 						.getDeleteFieldXmlElementName());
 				propertyDefinition.writeToXml(writer);
 				writer.writeEndElement();
@@ -703,12 +685,12 @@ class PropertyBag implements IComplexPropertyChanged,
 	 *             the exception
 	 */
 	protected void validate() throws Exception {
-		for (PropertyDefinition propertyDefinition : this.addedProperties) {
-			this.validatePropertyValue(propertyDefinition);
+		for (PropertyDefinition propertyDefinition : addedProperties) {
+			validatePropertyValue(propertyDefinition);
 		}
 
-		for (PropertyDefinition propertyDefinition : this.modifiedProperties) {
-			this.validatePropertyValue(propertyDefinition);
+		for (PropertyDefinition propertyDefinition : modifiedProperties) {
+			validatePropertyValue(propertyDefinition);
 		}
 	}
 
@@ -723,11 +705,11 @@ class PropertyBag implements IComplexPropertyChanged,
 	private void validatePropertyValue(PropertyDefinition propertyDefinition)
 			throws Exception {
 		OutParam<Object> propertyValueOut = new OutParam<Object>();
-		if (this.tryGetProperty(propertyDefinition, propertyValueOut)) {
+		if (tryGetProperty(propertyDefinition, propertyValueOut)) {
 			Object propertyValue = propertyValueOut.getParam();
 
 			if (propertyValue instanceof ISelfValidate) {
-				ISelfValidate validatingValue = (ISelfValidate)propertyValue;
+				ISelfValidate validatingValue = (ISelfValidate) propertyValue;
 				validatingValue.validate();
 			}
 		}
@@ -740,25 +722,22 @@ class PropertyBag implements IComplexPropertyChanged,
 	 *            The property to get or set.
 	 * @return An object representing the value of the property.
 	 * @throws ServiceLocalException
-	 *             ServiceVersionException will be raised if this property
-	 *             requires a later version of Exchange.
-	 *             ServiceObjectPropertyException will be raised for get if
-	 *             property hasn't been assigned or loaded, raised for set if
-	 *             property cannot be updated or deleted.
+	 *             ServiceVersionException will be raised if this property requires a later version of Exchange. ServiceObjectPropertyException will be raised
+	 *             for get if property hasn't been assigned or loaded, raised for set if property cannot be updated or deleted.
 	 */
 	protected Object getObjectFromPropertyDefinition(
 			PropertyDefinition propertyDefinition)
-		throws ServiceLocalException {
+			throws ServiceLocalException {
 		ServiceLocalException serviceException = null;
-		OutParam<ServiceLocalException> serviceExceptionOut = 
-			new OutParam<ServiceLocalException>();
-		Object propertyValue = this.getPropertyValueOrException(
+		OutParam<ServiceLocalException> serviceExceptionOut =
+				new OutParam<ServiceLocalException>();
+		Object propertyValue = getPropertyValueOrException(
 				propertyDefinition, serviceExceptionOut);
 		serviceException = serviceExceptionOut.getParam();
 		if (serviceException == null) {
 			return propertyValue;
 		} else {
-			//throw new ServiceLocalException();
+			// throw new ServiceLocalException();
 			throw serviceException;
 		}
 	}
@@ -776,7 +755,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	protected void setObjectFromPropertyDefinition(
 			PropertyDefinition propertyDefinition, Object object)
 			throws Exception {
-		if (propertyDefinition.getVersion().ordinal() > this.getOwner()
+		if (propertyDefinition.getVersion().ordinal() > getOwner()
 				.getService().getRequestedServerVersion().ordinal()) {
 			throw new ServiceVersionException(String.format(
 					Strings.PropertyIncompatibleWithRequestVersion,
@@ -787,21 +766,21 @@ class PropertyBag implements IComplexPropertyChanged,
 		// If the property bag is not in the loading state, we need to verify
 		// whether
 		// the property can actually be set or updated.
-		if (!this.loading) {
+		if (!loading) {
 			// If the owner is new and if the property cannot be set, throw.
-			if (this.getOwner().isNew()
+			if (getOwner().isNew()
 					&& !propertyDefinition
 							.hasFlag(PropertyDefinitionFlags.CanSet)) {
 				throw new ServiceObjectPropertyException(
 						Strings.PropertyIsReadOnly, propertyDefinition);
 			}
 
-			if (!this.getOwner().isNew()) {
+			if (!getOwner().isNew()) {
 				// If owner is an item attachment, properties cannot be updated
 				// (EWS doesn't support updating item attachments)
 
-				if ((this.getOwner() instanceof Item)) {
-					Item ownerItem = (Item) this.getOwner();
+				if ((getOwner() instanceof Item)) {
+					Item ownerItem = (Item) getOwner();
 					if (ownerItem.isAttachment()) {
 						throw new ServiceObjectPropertyException(
 								Strings.ItemAttachmentCannotBeUpdated,
@@ -814,7 +793,7 @@ class PropertyBag implements IComplexPropertyChanged,
 						&& !propertyDefinition
 								.hasFlag(PropertyDefinitionFlags.CanDelete)) {
 					throw new ServiceObjectPropertyException(
-							Strings.PropertyCannotBeDeleted, 
+							Strings.PropertyCannotBeDeleted,
 							propertyDefinition);
 				}
 
@@ -822,7 +801,7 @@ class PropertyBag implements IComplexPropertyChanged,
 				if (!propertyDefinition
 						.hasFlag(PropertyDefinitionFlags.CanUpdate)) {
 					throw new ServiceObjectPropertyException(
-							Strings.PropertyCannotBeUpdated, 
+							Strings.PropertyCannotBeUpdated,
 							propertyDefinition);
 				}
 			}
@@ -830,13 +809,13 @@ class PropertyBag implements IComplexPropertyChanged,
 
 		// If the value is set to null, delete the property.
 		if (object == null) {
-			this.deleteProperty(propertyDefinition);
+			deleteProperty(propertyDefinition);
 		} else {
 			ComplexProperty complexProperty = null;
 			Object currentValue = null;
 
-			if (this.properties.containsKey(propertyDefinition)) {
-				currentValue = this.properties.get(propertyDefinition);
+			if (properties.containsKey(propertyDefinition)) {
+				currentValue = properties.get(propertyDefinition);
 
 				if (currentValue instanceof ComplexProperty) {
 					complexProperty = (ComplexProperty) currentValue;
@@ -846,28 +825,28 @@ class PropertyBag implements IComplexPropertyChanged,
 
 			// If the property was to be deleted, the deletion becomes an
 			// update.
-			if (this.deletedProperties.containsKey(propertyDefinition)) {
-				this.deletedProperties.remove(propertyDefinition);
-				addToChangeList(propertyDefinition, this.modifiedProperties);
+			if (deletedProperties.containsKey(propertyDefinition)) {
+				deletedProperties.remove(propertyDefinition);
+				addToChangeList(propertyDefinition, modifiedProperties);
 			} else {
 				// If the property value was not set, we have a newly set
 				// property.
-				if (!this.properties.containsKey(propertyDefinition)) {
-					addToChangeList(propertyDefinition, this.addedProperties);
+				if (!properties.containsKey(propertyDefinition)) {
+					addToChangeList(propertyDefinition, addedProperties);
 				} else {
 					// The last case is that we have a modified property.
-					if (!this.modifiedProperties.contains(propertyDefinition)) {
+					if (!modifiedProperties.contains(propertyDefinition)) {
 						addToChangeList(propertyDefinition,
-								this.modifiedProperties);
+								modifiedProperties);
 					}
 				}
 			}
 
 			if (object instanceof ComplexProperty) {
-				this.initComplexProperty((ComplexProperty) object);
+				initComplexProperty((ComplexProperty) object);
 			}
-			this.properties.put(propertyDefinition, object);
-			this.changed();
+			properties.put(propertyDefinition, object);
+			changed();
 		}
 
 	}
@@ -878,8 +857,7 @@ class PropertyBag implements IComplexPropertyChanged,
 	 * @seemicrosoft.exchange.webservices.ComplexPropertyChangedInterface#
 	 * complexPropertyChanged(microsoft.exchange.webservices.ComplexProperty)
 	 */
-	@Override
 	public void complexPropertyChanged(ComplexProperty complexProperty) {
-		this.propertyChanged(complexProperty);
+		propertyChanged(complexProperty);
 	}
 }

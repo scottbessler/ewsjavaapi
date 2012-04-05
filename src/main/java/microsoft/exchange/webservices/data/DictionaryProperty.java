@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Represents a generic dictionary that can be sent to or retrieved from EWS.
- * TKey The type of key. TEntry The type of entry.
+ * Represents a generic dictionary that can be sent to or retrieved from EWS. TKey The type of key. TEntry The type of entry.
  * 
  * @param <TKey>
  *            the generic type
@@ -22,22 +21,21 @@ import java.util.Map.Entry;
  *            the generic type
  */
 @EditorBrowsable(state = EditorBrowsableState.Never)
-public abstract class DictionaryProperty
-		<TKey, TEntry extends DictionaryEntryProperty<TKey>>
+public abstract class DictionaryProperty<TKey, TEntry extends DictionaryEntryProperty<TKey>>
 		extends ComplexProperty implements ICustomXmlUpdateSerializer,
 		IComplexPropertyChangedDelegate {
 
 	/** The entries. */
-	private Map<TKey, TEntry> entries = new HashMap<TKey, TEntry>();
+	private final Map<TKey, TEntry> entries = new HashMap<TKey, TEntry>();
 
 	/** The removed entries. */
-	private Map<TKey, TEntry> removedEntries = new HashMap<TKey, TEntry>();
+	private final Map<TKey, TEntry> removedEntries = new HashMap<TKey, TEntry>();
 
 	/** The added entries. */
-	private List<TKey> addedEntries = new ArrayList<TKey>();
+	private final List<TKey> addedEntries = new ArrayList<TKey>();
 
 	/** The modified entries. */
-	private List<TKey> modifiedEntries = new ArrayList<TKey>();
+	private final List<TKey> modifiedEntries = new ArrayList<TKey>();
 
 	/**
 	 * * Entry was changed.
@@ -46,11 +44,11 @@ public abstract class DictionaryProperty
 	 *            the complex property
 	 */
 	private void entryChanged(ComplexProperty complexProperty) {
-		TKey key = ((TEntry)complexProperty).getKey();
+		TKey key = ((TEntry) complexProperty).getKey();
 
 		if (!this.addedEntries.contains(key) && !this.modifiedEntries.contains(key)) {
 			this.modifiedEntries.add(key);
-			this.changed();
+			changed();
 		}
 	}
 
@@ -131,6 +129,7 @@ public abstract class DictionaryProperty
 	/***
 	 * Clears the change log.
 	 */
+	@Override
 	protected void clearChangeLog() {
 		this.addedEntries.clear();
 		this.removedEntries.clear();
@@ -149,12 +148,12 @@ public abstract class DictionaryProperty
 	 */
 	protected void internalAdd(TEntry entry) {
 		entry.addOnChangeEvent(this);
-		
+
 		this.entries.put(entry.getKey(), entry);
 		this.addedEntries.add(entry.getKey());
 		this.removedEntries.remove(entry.getKey());
 
-		this.changed();
+		changed();
 	}
 
 	/**
@@ -163,7 +162,6 @@ public abstract class DictionaryProperty
 	 * @param complexProperty
 	 *            accepts ComplexProperty
 	 */
-	@Override
 	public void complexPropertyChanged(ComplexProperty complexProperty) {
 		this.entryChanged(complexProperty);
 	}
@@ -188,7 +186,7 @@ public abstract class DictionaryProperty
 				}
 			}
 
-			this.changed();
+			changed();
 		} else {
 			this.internalAdd(entry);
 		}
@@ -209,7 +207,7 @@ public abstract class DictionaryProperty
 			this.entries.remove(key);
 			this.removedEntries.put(key, entry);
 
-			this.changed();
+			changed();
 		}
 
 		this.addedEntries.remove(key);
@@ -225,6 +223,7 @@ public abstract class DictionaryProperty
 	 * @throws Exception
 	 *             the exception
 	 */
+	@Override
 	protected void loadFromXml(EwsServiceXmlReader reader,
 			String localElementName) throws Exception {
 		reader.ensureCurrentNodeIsStartElement(XmlNamespace.Types,
@@ -253,24 +252,28 @@ public abstract class DictionaryProperty
 
 	/**
 	 * Writes to XML.
-	 * @param writer The writer
-	 * @param xmlNamespace The XML namespace.          
-	 * @param xmlElementName Name of the XML element.	 
-	 * @throws Exception 	 
+	 * 
+	 * @param writer
+	 *            The writer
+	 * @param xmlNamespace
+	 *            The XML namespace.
+	 * @param xmlElementName
+	 *            Name of the XML element.
+	 * @throws Exception
 	 */
 	@Override
-	protected  void writeToXml(EwsServiceXmlWriter writer,
+	protected void writeToXml(EwsServiceXmlWriter writer,
 			XmlNamespace xmlNamespace,
-            String xmlElementName) throws Exception {
-            //  Only write collection if it has at least one element.
-            if (this.entries.size() > 0) {
-            	super.writeToXml(
-                    writer,
-                    xmlNamespace,
-                    xmlElementName);
-            }
-        }
-	
+			String xmlElementName) throws Exception {
+		// Only write collection if it has at least one element.
+		if (this.entries.size() > 0) {
+			super.writeToXml(
+					writer,
+					xmlNamespace,
+					xmlElementName);
+		}
+	}
+
 	/***
 	 * Writes elements to XML.
 	 * 
@@ -279,6 +282,7 @@ public abstract class DictionaryProperty
 	 * @throws Exception
 	 *             the exception
 	 */
+	@Override
 	protected void writeElementsToXml(EwsServiceXmlWriter writer)
 			throws Exception {
 		for (Entry<TKey, TEntry> keyValuePair : this.entries.entrySet()) {
@@ -301,8 +305,7 @@ public abstract class DictionaryProperty
 	 * 
 	 * @param key
 	 *            the key
-	 * @return true if this instance contains the specified key; otherwise,
-	 *         false.
+	 * @return true if this instance contains the specified key; otherwise, false.
 	 */
 	public boolean contains(TKey key) {
 		return this.entries.containsKey(key);
@@ -342,7 +345,7 @@ public abstract class DictionaryProperty
 
 				writer.writeStartElement(XmlNamespace.Types, ewsObject
 						.getXmlElementName());
-				//writer.writeStartElement(XmlNamespace.Types, propertyDefinition.getXmlElementName());
+				// writer.writeStartElement(XmlNamespace.Types, propertyDefinition.getXmlElementName());
 				writer.writeStartElement(XmlNamespace.Types, propertyDefinition.getXmlElement());
 				entry.writeToXml(writer, this.getEntryXmlElementName(entry));
 				writer.writeEndElement();

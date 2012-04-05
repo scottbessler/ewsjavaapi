@@ -22,8 +22,8 @@ public final class EmailAddressEntry extends
 	 */
 	protected EmailAddressEntry() {
 		super(EmailAddressKey.class);
-		this.emailAddress = new EmailAddress();
-		this.emailAddress.addOnChangeEvent(this);
+		emailAddress = new EmailAddress();
+		emailAddress.addOnChangeEvent(this);
 	}
 
 	/**
@@ -34,7 +34,7 @@ public final class EmailAddressEntry extends
 	 * @param emailAddress
 	 *            The email address.
 	 */
-	protected EmailAddressEntry(EmailAddressKey key, 
+	protected EmailAddressEntry(EmailAddressKey key,
 			EmailAddress emailAddress) {
 		super(EmailAddressKey.class, key);
 		this.emailAddress = emailAddress;
@@ -52,21 +52,20 @@ public final class EmailAddressEntry extends
 	protected void readAttributesFromXml(EwsServiceXmlReader reader)
 			throws Exception {
 		super.readAttributesFromXml(reader);
-		this.getEmailAddress().setName(
-				reader.readAttributeValue((String)XmlAttributeNames.Name));
-		this
-				.getEmailAddress()
+		getEmailAddress().setName(
+				reader.readAttributeValue(XmlAttributeNames.Name));
+		getEmailAddress()
 				.setRoutingType(
 						reader
-								.readAttributeValue((String)XmlAttributeNames.
-										RoutingType));
+								.readAttributeValue(XmlAttributeNames.
+								RoutingType));
 		String mailboxTypeString = reader
 				.readAttributeValue(XmlAttributeNames.MailboxType);
 		if ((mailboxTypeString != null) && (!mailboxTypeString.isEmpty())) {
-			this.getEmailAddress().setMailboxType(
+			getEmailAddress().setMailboxType(
 					EwsUtilities.parse(MailboxType.class, mailboxTypeString));
 		} else {
-			this.getEmailAddress().setMailboxType(null);
+			getEmailAddress().setMailboxType(null);
 		}
 	}
 
@@ -81,7 +80,7 @@ public final class EmailAddressEntry extends
 	@Override
 	protected void readTextValueFromXml(EwsServiceXmlReader reader)
 			throws Exception {
-		this.getEmailAddress().setAddress(reader.readValue());
+		getEmailAddress().setAddress(reader.readValue());
 	}
 
 	/**
@@ -96,16 +95,12 @@ public final class EmailAddressEntry extends
 	protected void writeAttributesToXml(EwsServiceXmlWriter writer)
 			throws ServiceXmlSerializationException {
 		super.writeAttributesToXml(writer);
-		if (writer.getService().getRequestedServerVersion().ordinal() > 
-		ExchangeVersion.Exchange2007_SP1
+		if (writer.getService().getRequestedServerVersion().ordinal() > ExchangeVersion.Exchange2007_SP1
 				.ordinal()) {
-			writer.writeAttributeValue(XmlAttributeNames.Name, this
-					.getEmailAddress().getName());
-			writer.writeAttributeValue(XmlAttributeNames.RoutingType, this
-					.getEmailAddress().getRoutingType());
-			if (this.getEmailAddress().getMailboxType() != MailboxType.Unknown) {
-				writer.writeAttributeValue(XmlAttributeNames.MailboxType, this
-						.getEmailAddress().getMailboxType());
+			writer.writeAttributeValue(XmlAttributeNames.Name, getEmailAddress().getName());
+			writer.writeAttributeValue(XmlAttributeNames.RoutingType, getEmailAddress().getRoutingType());
+			if (getEmailAddress().getMailboxType() != MailboxType.Unknown) {
+				writer.writeAttributeValue(XmlAttributeNames.MailboxType, getEmailAddress().getMailboxType());
 			}
 		}
 	}
@@ -121,7 +116,7 @@ public final class EmailAddressEntry extends
 	@Override
 	protected void writeElementsToXml(EwsServiceXmlWriter writer)
 			throws ServiceXmlSerializationException {
-		writer.writeValue(this.getEmailAddress().getAddress(),
+		writer.writeValue(getEmailAddress().getAddress(),
 				XmlElementNames.EmailAddress);
 	}
 
@@ -131,7 +126,7 @@ public final class EmailAddressEntry extends
 	 * @return the email address
 	 */
 	public EmailAddress getEmailAddress() {
-		return this.emailAddress;
+		return emailAddress;
 		// set { this.SetFieldValue<EmailAddress>(ref this.emailAddress, value);
 		// }
 	}
@@ -143,9 +138,9 @@ public final class EmailAddressEntry extends
 	 *            the new email address
 	 */
 	public void setEmailAddress(Object value) {
-		//this.canSetFieldValue((EmailAddress) this.emailAddress, value);
-		if( this.canSetFieldValue((EmailAddress) this.emailAddress, value) ) {
-			this.emailAddress = (EmailAddress)value;
+		// this.canSetFieldValue((EmailAddress) this.emailAddress, value);
+		if (this.canSetFieldValue(emailAddress, value)) {
+			emailAddress = (EmailAddress) value;
 		}
 	}
 
@@ -157,7 +152,7 @@ public final class EmailAddressEntry extends
 	 */
 	@SuppressWarnings("unused")
 	private void emailAddressChanged(ComplexProperty complexProperty) {
-		this.changed();
+		changed();
 	}
 
 	/*
@@ -167,9 +162,8 @@ public final class EmailAddressEntry extends
 	 * microsoft.exchange.webservices.ComplexPropertyChangedDelegateInterface
 	 * #complexPropertyChanged(microsoft.exchange.webservices.ComplexProperty)
 	 */
-	@Override
 	public void complexPropertyChanged(ComplexProperty complexProperty) {
-		this.emailAddressChanged(complexProperty);
+		emailAddressChanged(complexProperty);
 
 	}
 

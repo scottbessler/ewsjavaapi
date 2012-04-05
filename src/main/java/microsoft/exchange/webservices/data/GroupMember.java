@@ -7,7 +7,7 @@
 package microsoft.exchange.webservices.data;
 
 /**
- *Represents a group member.
+ * Represents a group member.
  */
 @RequiredServerVersion(version = ExchangeVersion.Exchange2010)
 public class GroupMember extends ComplexProperty implements
@@ -35,10 +35,10 @@ public class GroupMember extends ComplexProperty implements
 		super();
 
 		// Key is assigned by server
-		this.key = null;
+		key = null;
 
 		// Member status is calculated by server
-		this.status = MemberStatus.Unrecognized;
+		status = MemberStatus.Unrecognized;
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class GroupMember extends ComplexProperty implements
 	 */
 	public GroupMember(String smtpAddress) {
 		this();
-		this.setAddressInformation(new EmailAddress(smtpAddress));
+		setAddressInformation(new EmailAddress(smtpAddress));
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class GroupMember extends ComplexProperty implements
 		case Mailbox:
 		case Contact:
 		case OneOff:
-			this.setAddressInformation(new EmailAddress(null, address,
+			setAddressInformation(new EmailAddress(null, address,
 					routingType, mailboxType));
 			break;
 
@@ -113,7 +113,7 @@ public class GroupMember extends ComplexProperty implements
 	public GroupMember(String name, String address, String routingType) {
 		this();
 
-		this.setAddressInformation(new EmailAddress(name, address, routingType,
+		setAddressInformation(new EmailAddress(name, address, routingType,
 				MailboxType.OneOff));
 	}
 
@@ -139,7 +139,7 @@ public class GroupMember extends ComplexProperty implements
 	public GroupMember(ItemId contactGroupId) {
 		this();
 
-		this.setAddressInformation(new EmailAddress(null, null, null,
+		setAddressInformation(new EmailAddress(null, null, null,
 				MailboxType.ContactGroup, contactGroupId));
 	}
 
@@ -154,7 +154,7 @@ public class GroupMember extends ComplexProperty implements
 	public GroupMember(ItemId contactId, String addressToLink) {
 		this();
 
-		this.setAddressInformation(new EmailAddress(null, addressToLink, null,
+		setAddressInformation(new EmailAddress(null, addressToLink, null,
 				MailboxType.Contact, contactId));
 	}
 
@@ -169,7 +169,7 @@ public class GroupMember extends ComplexProperty implements
 	public GroupMember(EmailAddress addressInformation) throws Exception {
 		this();
 
-		this.setAddressInformation(new EmailAddress(addressInformation));
+		setAddressInformation(new EmailAddress(addressInformation));
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class GroupMember extends ComplexProperty implements
 		this();
 
 		EwsUtilities.validateParam(member, "member");
-		this.setAddressInformation(new EmailAddress(member
+		setAddressInformation(new EmailAddress(member
 				.getAddressInformation()));
 	}
 
@@ -205,8 +205,8 @@ public class GroupMember extends ComplexProperty implements
 		EwsUtilities.validateParam(contact, "contact");
 		EmailAddress emailAddress = contact.getEmailAddresses()
 				.getEmailAddress(emailAddressKey);
-		this.setAddressInformation(new EmailAddress(emailAddress));
-		this.getAddressInformation().setId(contact.getId());
+		setAddressInformation(new EmailAddress(emailAddress));
+		getAddressInformation().setId(contact.getId());
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class GroupMember extends ComplexProperty implements
 	 */
 	public String getKey() {
 
-		return this.key;
+		return key;
 
 	}
 
@@ -227,7 +227,7 @@ public class GroupMember extends ComplexProperty implements
 	 */
 	public EmailAddress getAddressInformation() {
 
-		return this.addressInformation;
+		return addressInformation;
 	}
 
 	/**
@@ -238,16 +238,16 @@ public class GroupMember extends ComplexProperty implements
 	 */
 	protected void setAddressInformation(EmailAddress value) {
 
-		if (this.addressInformation != null) {
+		if (addressInformation != null) {
 
-			this.addressInformation.removeChangeEvent(this);
+			addressInformation.removeChangeEvent(this);
 		}
 
-		this.addressInformation = value;
+		addressInformation = value;
 
-		if (this.addressInformation != null) {
+		if (addressInformation != null) {
 
-			this.addressInformation.addOnChangeEvent(this);
+			addressInformation.addOnChangeEvent(this);
 		}
 	}
 
@@ -259,7 +259,7 @@ public class GroupMember extends ComplexProperty implements
 
 	public MemberStatus getStatus() {
 
-		return this.status;
+		return status;
 
 	}
 
@@ -271,9 +271,10 @@ public class GroupMember extends ComplexProperty implements
 	 * @throws Exception
 	 *             the exception
 	 */
+	@Override
 	protected void readAttributesFromXml(EwsServiceXmlReader reader)
 			throws Exception {
-		this.key = reader.readAttributeValue(String.class,
+		key = reader.readAttributeValue(String.class,
 				XmlAttributeNames.Key);
 	}
 
@@ -286,17 +287,18 @@ public class GroupMember extends ComplexProperty implements
 	 * @throws Exception
 	 *             the exception
 	 */
+	@Override
 	protected boolean tryReadElementFromXml(EwsServiceXmlReader reader)
 			throws Exception {
 		if (reader.getLocalName().equals(XmlElementNames.Status)) {
 
-			this.status = EwsUtilities.parse(MemberStatus.class, reader
+			status = EwsUtilities.parse(MemberStatus.class, reader
 					.readElementValue());
 			return true;
 		} else if (reader.getLocalName().equals(XmlElementNames.Mailbox)) {
 
-			this.setAddressInformation(new EmailAddress());
-			this.getAddressInformation().loadFromXml(reader,
+			setAddressInformation(new EmailAddress());
+			getAddressInformation().loadFromXml(reader,
 					reader.getLocalName());
 			return true;
 		} else {
@@ -313,10 +315,11 @@ public class GroupMember extends ComplexProperty implements
 	 * @throws ServiceXmlSerializationException
 	 *             the service xml serialization exception
 	 */
+	@Override
 	protected void writeAttributesToXml(EwsServiceXmlWriter writer)
 			throws ServiceXmlSerializationException {
 		// if this.key is null or empty, writer skips the attribute
-		writer.writeAttributeValue(XmlAttributeNames.Key, this.key);
+		writer.writeAttributeValue(XmlAttributeNames.Key, key);
 	}
 
 	/**
@@ -327,11 +330,12 @@ public class GroupMember extends ComplexProperty implements
 	 * @throws Exception
 	 *             the exception
 	 */
+	@Override
 	protected void writeElementsToXml(EwsServiceXmlWriter writer)
 			throws Exception {
 		// No need to write member Status back to server
 		// Write only AddressInformation container element
-		this.getAddressInformation().writeToXml(writer, XmlNamespace.Types,
+		getAddressInformation().writeToXml(writer, XmlNamespace.Types,
 				XmlElementNames.Mailbox);
 	}
 
@@ -342,7 +346,7 @@ public class GroupMember extends ComplexProperty implements
 	 *            Changed property.
 	 */
 	private void addressInformationChanged(ComplexProperty complexProperty) {
-		this.changed();
+		changed();
 	}
 
 	/**
@@ -351,9 +355,8 @@ public class GroupMember extends ComplexProperty implements
 	 * @param complexProperty
 	 *            accepts ComplexProperty
 	 */
-	@Override
 	public void complexPropertyChanged(ComplexProperty complexProperty) {
 
-		this.addressInformationChanged(complexProperty);
+		addressInformationChanged(complexProperty);
 	}
 }

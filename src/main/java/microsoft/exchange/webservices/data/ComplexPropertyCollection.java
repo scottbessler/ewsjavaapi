@@ -11,33 +11,31 @@ import java.util.Iterator;
 import java.util.List;
 
 /***
- * Represents a collection of properties that can be sent to and retrieved from
- * EWS.
+ * Represents a collection of properties that can be sent to and retrieved from EWS.
  * 
  * 
  * @param <TComplexProperty>
  *            ComplexProperty type.
  */
 @EditorBrowsable(state = EditorBrowsableState.Never)
-public abstract class ComplexPropertyCollection
-<TComplexProperty extends ComplexProperty>
+public abstract class ComplexPropertyCollection<TComplexProperty extends ComplexProperty>
 		extends ComplexProperty implements ICustomXmlUpdateSerializer,
 		Iterable<TComplexProperty>, IComplexPropertyChangedDelegate {
 
 	/** The items. */
-	private List<TComplexProperty> items = new ArrayList<TComplexProperty>();
+	private final List<TComplexProperty> items = new ArrayList<TComplexProperty>();
 
 	/** The added items. */
-	private List<TComplexProperty> addedItems = 
-		new ArrayList<TComplexProperty>();
+	private final List<TComplexProperty> addedItems =
+			new ArrayList<TComplexProperty>();
 
 	/** The modified items. */
-	private List<TComplexProperty> modifiedItems = 
-		new ArrayList<TComplexProperty>();
+	private final List<TComplexProperty> modifiedItems =
+			new ArrayList<TComplexProperty>();
 
 	/** The removed items. */
-	private List<TComplexProperty> removedItems = 
-		new ArrayList<TComplexProperty>();
+	private final List<TComplexProperty> removedItems =
+			new ArrayList<TComplexProperty>();
 
 	/***
 	 * Creates the complex property.
@@ -76,44 +74,51 @@ public abstract class ComplexPropertyCollection
 		EwsUtilities.EwsAssert(complexProperty instanceof ComplexProperty,
 				"ComplexPropertyCollection.ItemChanged", String.format(
 						"ComplexPropertyCollection." +
-								 "ItemChanged: the type of " +
-								 "the complexProperty " + "argument " +
-								 "(%s) is not supported.",
+								"ItemChanged: the type of " +
+								"the complexProperty " + "argument " +
+								"(%s) is not supported.",
 						complexProperty.getClass().getName()));
 
-		TComplexProperty property = (TComplexProperty)complexProperty;
+		TComplexProperty property = (TComplexProperty) complexProperty;
 		if (!this.addedItems.contains(property)) {
 			if (!this.modifiedItems.contains(property)) {
 				this.modifiedItems.add(property);
-				this.changed();
+				changed();
 			}
 		}
 	}
 
 	/**
 	 * Loads from XML.
-	 * @param reader The reader.
-	 * @param localElementName Name of the local element.
+	 * 
+	 * @param reader
+	 *            The reader.
+	 * @param localElementName
+	 *            Name of the local element.
 	 */
 	@Override
-	protected void loadFromXml(EwsServiceXmlReader reader, 
+	protected void loadFromXml(EwsServiceXmlReader reader,
 			String localElementName) throws Exception {
 		this.loadFromXml(
 				reader,
 				XmlNamespace.Types,
 				localElementName);
 	}
-	
+
 	/**
 	 * Loads from XML.
-	 * @param reader The reader.
-	 * @param xmlNamespace The XML namespace.
-	 * @param localElementName Name of the local element.
+	 * 
+	 * @param reader
+	 *            The reader.
+	 * @param xmlNamespace
+	 *            The XML namespace.
+	 * @param localElementName
+	 *            Name of the local element.
 	 */
 	@Override
 	protected void loadFromXml(EwsServiceXmlReader reader,
 			XmlNamespace xmlNamespace,
-			String localElementName) throws Exception {      
+			String localElementName) throws Exception {
 		reader.ensureCurrentNodeIsStartElement(xmlNamespace,
 				localElementName);
 		if (!reader.isEmptyElement()) {
@@ -122,7 +127,7 @@ public abstract class ComplexPropertyCollection
 
 				if (reader.isStartElement()) {
 					TComplexProperty complexProperty = this
-					.createComplexProperty(reader.getLocalName());
+							.createComplexProperty(reader.getLocalName());
 
 					if (complexProperty != null) {
 						complexProperty.loadFromXml(reader, reader
@@ -137,12 +142,16 @@ public abstract class ComplexPropertyCollection
 			reader.read();
 		}
 	}
-	
+
 	/**
 	 * Writes to XML.
-	 * @param writer The writer.
-	 * @param xmlNamespace The XML namespace.
-	 * @param xmlElementName Name of the XML element.
+	 * 
+	 * @param writer
+	 *            The writer.
+	 * @param xmlNamespace
+	 *            The XML namespace.
+	 * @param xmlElementName
+	 *            Name of the XML element.
 	 */
 	@Override
 	protected void writeToXml(EwsServiceXmlWriter writer,
@@ -158,13 +167,14 @@ public abstract class ComplexPropertyCollection
 
 	/**
 	 * Determine whether we should write collection to XML or not.
+	 * 
 	 * @return True if collection contains at least one element.
 	 */
 	protected boolean shouldWriteToXml() {
-		//Only write collection if it has at least one element.
+		// Only write collection if it has at least one element.
 		return this.getCount() > 0;
 	}
-	
+
 	/**
 	 * * Writes elements to XML.
 	 * 
@@ -258,7 +268,7 @@ public abstract class ComplexPropertyCollection
 	 * @param loading
 	 *            If true, collection is being loaded.
 	 */
-	private void internalAdd(TComplexProperty complexProperty, 
+	private void internalAdd(TComplexProperty complexProperty,
 			boolean loading) {
 		EwsUtilities.EwsAssert(complexProperty != null,
 				"ComplexPropertyCollection.InternalAdd",
@@ -271,7 +281,7 @@ public abstract class ComplexPropertyCollection
 				this.addedItems.add(complexProperty);
 			}
 			complexProperty.addOnChangeEvent(this);
-			this.changed();
+			changed();
 		}
 	}
 
@@ -281,7 +291,6 @@ public abstract class ComplexPropertyCollection
 	 * @param complexProperty
 	 *            accepts ComplexProperty
 	 */
-	@Override
 	public void complexPropertyChanged(ComplexProperty complexProperty) {
 		this.itemChanged(complexProperty);
 	}
@@ -314,8 +323,7 @@ public abstract class ComplexPropertyCollection
 	 * 
 	 * @param complexProperty
 	 *            The complex property.
-	 * @return True if the complex property was successfully removed from the
-	 *         collection, false otherwise.
+	 * @return True if the complex property was successfully removed from the collection, false otherwise.
 	 */
 	protected boolean internalRemove(TComplexProperty complexProperty) {
 		EwsUtilities.EwsAssert(complexProperty != null,
@@ -330,7 +338,7 @@ public abstract class ComplexPropertyCollection
 				this.addedItems.remove(complexProperty);
 			}
 			this.modifiedItems.remove(complexProperty);
-			this.changed();
+			changed();
 			return true;
 		} else {
 			return false;
@@ -342,16 +350,14 @@ public abstract class ComplexPropertyCollection
 	 * 
 	 * @param complexProperty
 	 *            The property to locate in the collection.
-	 * @return True if the property was found in the collection, false
-	 *         otherwise.
+	 * @return True if the property was found in the collection, false otherwise.
 	 */
 	public boolean contains(TComplexProperty complexProperty) {
 		return this.items.contains(complexProperty);
 	}
 
 	/***
-	 * Searches for a specific property and return its zero-based index within
-	 * the collection.
+	 * Searches for a specific property and return its zero-based index within the collection.
 	 * 
 	 * @param complexProperty
 	 *            The property to locate in the collection.
@@ -383,7 +389,7 @@ public abstract class ComplexPropertyCollection
 			throws IllegalArgumentException {
 		if (index < 0 || index >= this.getCount()) {
 			throw new IllegalArgumentException("parameter \'index\' : " +
-					 Strings.IndexIsOutOfRange);
+					Strings.IndexIsOutOfRange);
 		}
 		return this.items.get(index);
 	}
@@ -393,7 +399,6 @@ public abstract class ComplexPropertyCollection
 	 * 
 	 * @return An Iterator for the collection.
 	 */
-	@Override
 	public Iterator<TComplexProperty> iterator() {
 		return this.items.iterator();
 	}
@@ -411,7 +416,6 @@ public abstract class ComplexPropertyCollection
 	 * @throws Exception
 	 *             the exception
 	 */
-	@Override
 	public boolean writeSetUpdateToXml(EwsServiceXmlWriter writer,
 			ServiceObject ewsObject, PropertyDefinition propertyDefinition)
 			throws Exception {
@@ -440,7 +444,6 @@ public abstract class ComplexPropertyCollection
 	 * @throws Exception
 	 *             the exception
 	 */
-	@Override
 	public boolean writeDeleteUpdateToXml(EwsServiceXmlWriter writer,
 			ServiceObject ewsObject) throws Exception {
 		// Use the default XML serializer.

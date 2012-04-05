@@ -12,10 +12,10 @@ import java.io.OutputStream;
 
 import org.apache.commons.httpclient.methods.RequestEntity;
 
-class ByteArrayOSRequestEntity implements RequestEntity{
+class ByteArrayOSRequestEntity implements RequestEntity {
 
 	private ByteArrayOutputStream os = null;
-	
+
 	/**
 	 * Constructor for ByteArrayOSRequestEntity.
 	 */
@@ -23,25 +23,21 @@ class ByteArrayOSRequestEntity implements RequestEntity{
 		super();
 		this.os = (ByteArrayOutputStream) os;
 	}
-	
-	@Override
+
 	public long getContentLength() {
 		return os.size();
 	}
 
-	@Override
 	public String getContentType() {
 		return "text/xml; charset=utf-8";
 	}
 
-	@Override
 	public boolean isRepeatable() {
 		return true;
 	}
 
-	@Override
 	public void writeRequest(OutputStream out) throws IOException {
-		os.writeTo(out);		
+		os.writeTo(out);
 	}
 
 }

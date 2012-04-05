@@ -18,19 +18,19 @@ import java.util.Map;
 /**
  * Represents a time zone as defined by the EWS schema.
  */
-public class TimeZoneDefinition extends ComplexProperty implements Comparator<TimeZoneTransition>{
-    /** Prefix for generated ids.*/   
-    private static String NoIdPrefix = "NoId_";
+public class TimeZoneDefinition extends ComplexProperty implements Comparator<TimeZoneTransition> {
+	/** Prefix for generated ids. */
+	private static String NoIdPrefix = "NoId_";
 
 	/** The Standard period id. */
 	protected final String StandardPeriodId = "Std";
-	
+
 	/** The Standard period name. */
 	protected final String StandardPeriodName = "Standard";
-	
+
 	/** The Daylight period id. */
 	protected final String DaylightPeriodId = "Dlt";
-	
+
 	/** The Daylight period name. */
 	protected final String DaylightPeriodName = "Daylight";
 
@@ -41,16 +41,16 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	protected String id;
 
 	/** The periods. */
-	private Map<String, TimeZonePeriod> periods = 
-		new HashMap<String, TimeZonePeriod>();
+	private final Map<String, TimeZonePeriod> periods =
+			new HashMap<String, TimeZonePeriod>();
 
 	/** The transition groups. */
-	private Map<String, TimeZoneTransitionGroup> transitionGroups = 
-		new HashMap<String, TimeZoneTransitionGroup>();
+	private final Map<String, TimeZoneTransitionGroup> transitionGroups =
+			new HashMap<String, TimeZoneTransitionGroup>();
 
 	/** The transitions. */
-	private List<TimeZoneTransition> transitions =
-		new ArrayList<TimeZoneTransition>();
+	private final List<TimeZoneTransition> transitions =
+			new ArrayList<TimeZoneTransition>();
 
 	/**
 	 * Compares the transitions.
@@ -59,10 +59,8 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	 *            The first transition.
 	 * @param y
 	 *            The second transition.
-	 * @return A negative number if x is less than y, 0 if x and y are equal, a
-	 *         positive number if x is greater than y.
+	 * @return A negative number if x is less than y, 0 if x and y are equal, a positive number if x is greater than y.
 	 */
-	@Override
 	public int compare(TimeZoneTransition x, TimeZoneTransition y) {
 		if (x == y) {
 			return 0;
@@ -71,8 +69,8 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 		} else if (y instanceof TimeZoneTransition) {
 			return 1;
 		} else {
-			AbsoluteDateTransition firstTransition = (AbsoluteDateTransition)x;
-			AbsoluteDateTransition secondTransition = (AbsoluteDateTransition)y;
+			AbsoluteDateTransition firstTransition = (AbsoluteDateTransition) x;
+			AbsoluteDateTransition secondTransition = (AbsoluteDateTransition) y;
 
 			return firstTransition.getDateTime().compareTo(
 					secondTransition.getDateTime());
@@ -85,7 +83,6 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	protected TimeZoneDefinition() {
 		super();
 	}
-
 
 	/**
 	 * Adds a transition group with a single transition to the specified period.
@@ -100,9 +97,9 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 				timeZonePeriod);
 
 		TimeZoneTransitionGroup transitionGroup = new TimeZoneTransitionGroup(
-				this, String.valueOf(this.transitionGroups.size()));
+				this, String.valueOf(transitionGroups.size()));
 		transitionGroup.getTransitions().add(transitionToPeriod);
-		this.transitionGroups.put(transitionGroup.getId(), transitionGroup);
+		transitionGroups.put(transitionGroup.getId(), transitionGroup);
 		return transitionGroup;
 	}
 
@@ -117,15 +114,15 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	@Override
 	protected void readAttributesFromXml(EwsServiceXmlReader reader)
 			throws Exception {
-		this.name = reader.readAttributeValue(XmlAttributeNames.Name);
-		this.id = reader.readAttributeValue(XmlAttributeNames.Id);
-		
+		name = reader.readAttributeValue(XmlAttributeNames.Name);
+		id = reader.readAttributeValue(XmlAttributeNames.Id);
+
 		// E14:319057 -- EWS can return a TimeZone definition with no Id. Generate a new Id in this case.
-		if(this.id == null || this.id.isEmpty()){
-			String nameValue = (this.getName() == null || this.
-					getName().isEmpty()) ? "" : this.getName();
-            this.setId(NoIdPrefix + Math.abs(nameValue.hashCode()));
-        }
+		if (id == null || id.isEmpty()) {
+			String nameValue = (getName() == null ||
+					getName().isEmpty()) ? "" : getName();
+			setId(NoIdPrefix + Math.abs(nameValue.hashCode()));
+		}
 	}
 
 	/**
@@ -141,10 +138,10 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 			throws ServiceXmlSerializationException {
 		// The Name attribute is only supported in Exchange 2010 and above.
 		if (writer.getService().getRequestedServerVersion() != ExchangeVersion.Exchange2007_SP1) {
-			writer.writeAttributeValue(XmlAttributeNames.Name, this.name);
+			writer.writeAttributeValue(XmlAttributeNames.Name, name);
 		}
 
-		writer.writeAttributeValue(XmlAttributeNames.Id, this.id);
+		writer.writeAttributeValue(XmlAttributeNames.Id, id);
 	}
 
 	/**
@@ -167,7 +164,7 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 					TimeZonePeriod period = new TimeZonePeriod();
 					period.loadFromXml(reader);
 
-					this.periods.put(period.getId(), period);
+					periods.put(period.getId(), period);
 				}
 			} while (!reader.isEndElement(XmlNamespace.Types,
 					XmlElementNames.Periods));
@@ -180,12 +177,12 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 				if (reader.isStartElement(XmlNamespace.Types,
 						XmlElementNames.TransitionsGroup)) {
 					TimeZoneTransitionGroup transitionGroup =
-						new TimeZoneTransitionGroup(
-							this);
+							new TimeZoneTransitionGroup(
+									this);
 
 					transitionGroup.loadFromXml(reader);
 
-					this.transitionGroups.put(transitionGroup.getId(),
+					transitionGroups.put(transitionGroup.getId(),
 							transitionGroup);
 				}
 			} while (!reader.isEndElement(XmlNamespace.Types,
@@ -201,7 +198,7 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 
 					transition.loadFromXml(reader);
 
-					this.transitions.add(transition);
+					transitions.add(transition);
 				}
 			} while (!reader.isEndElement(XmlNamespace.Types,
 					XmlElementNames.Transitions));
@@ -222,7 +219,7 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	 */
 	protected void loadFromXml(EwsServiceXmlReader reader) throws Exception {
 		this.loadFromXml(reader, XmlElementNames.TimeZoneDefinition);
-		 Collections.sort(this.transitions, new TimeZoneDefinition());
+		Collections.sort(transitions, new TimeZoneDefinition());
 	}
 
 	/**
@@ -239,11 +236,11 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 		// We only emit the full time zone definition against Exchange 2010
 		// servers and above.
 		if (writer.getService().getRequestedServerVersion() != ExchangeVersion.Exchange2007_SP1) {
-			if (this.periods.size() > 0) {
+			if (periods.size() > 0) {
 				writer.writeStartElement(XmlNamespace.Types,
 						XmlElementNames.Periods);
 
-				Iterator it = this.periods.values().iterator();
+				Iterator it = periods.values().iterator();
 				while (it.hasNext()) {
 					((TimeZonePeriod) it.next()).writeToXml(writer);
 				}
@@ -251,21 +248,21 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 				writer.writeEndElement(); // Periods
 			}
 
-			if (this.transitionGroups.size() > 0) {
+			if (transitionGroups.size() > 0) {
 				writer.writeStartElement(XmlNamespace.Types,
 						XmlElementNames.TransitionsGroups);
-				for (int i = 0; i < this.transitionGroups.size(); i++) {
-					Object key[] = this.transitionGroups.keySet().toArray();
-					this.transitionGroups.get(key[i]).writeToXml(writer);
+				for (int i = 0; i < transitionGroups.size(); i++) {
+					Object key[] = transitionGroups.keySet().toArray();
+					transitionGroups.get(key[i]).writeToXml(writer);
 				}
 				writer.writeEndElement(); // TransitionGroups
 			}
 
-			if (this.transitions.size() > 0) {
+			if (transitions.size() > 0) {
 				writer.writeStartElement(XmlNamespace.Types,
 						XmlElementNames.Transitions);
 
-				for (TimeZoneTransition transition : this.transitions) {
+				for (TimeZoneTransition transition : transitions) {
 					transition.writeToXml(writer);
 				}
 
@@ -292,19 +289,20 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	 * @throws ServiceLocalException
 	 *             the service local exception
 	 */
+	@Override
 	public void validate() throws ServiceLocalException {
 		// The definition must have at least one period, one transition group
 		// and one transition,
 		// and there must be as many transitions as there are transition groups.
-		if (this.periods.size() < 1 || this.transitions.size() < 1
-				|| this.transitionGroups.size() < 1
-				|| this.transitionGroups.size() != this.transitions.size()) {
+		if (periods.size() < 1 || transitions.size() < 1
+				|| transitionGroups.size() < 1
+				|| transitionGroups.size() != transitions.size()) {
 			throw new ServiceLocalException(
 					Strings.InvalidOrUnsupportedTimeZoneDefinition);
 		}
 
 		// The first transition must be of type TimeZoneTransition.
-		if (this.transitions.get(0).getClass() != TimeZoneTransition.class) {
+		if (transitions.get(0).getClass() != TimeZoneTransition.class) {
 			throw new ServiceLocalException(
 					Strings.InvalidOrUnsupportedTimeZoneDefinition);
 		}
@@ -312,7 +310,7 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 		// All transitions must be to transition groups and be either
 		// TimeZoneTransition or
 		// AbsoluteDateTransition instances.
-		for (TimeZoneTransition transition : this.transitions) {
+		for (TimeZoneTransition transition : transitions) {
 			Class<?> transitionType = transition.getClass();
 
 			if (transitionType != TimeZoneTransition.class
@@ -328,7 +326,7 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 		}
 
 		// All transition groups must be valid.
-		for (TimeZoneTransitionGroup transitionGroup : this.transitionGroups
+		for (TimeZoneTransitionGroup transitionGroup : transitionGroups
 				.values()) {
 			transitionGroup.validate();
 		}
@@ -336,11 +334,11 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 
 	/**
 	 * Gets the name of this time zone definition.
-	 *
+	 * 
 	 * @return the name
 	 */
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	/**
@@ -355,11 +353,11 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 
 	/**
 	 * Gets the Id of this time zone definition.
-	 *
+	 * 
 	 * @return the id
 	 */
 	public String getId() {
-		return this.id;
+		return id;
 	}
 
 	/**
@@ -374,21 +372,20 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 
 	/**
 	 * Adds a transition group with a single transition to the specified period.
-	 *
+	 * 
 	 * @return A TimeZoneTransitionGroup.
 	 */
 	protected Map<String, TimeZonePeriod> getPeriods() {
-		return this.periods;
+		return periods;
 	}
 
 	/**
-	 * Gets the transition groups associated with this time zone definition,
-	 * indexed by Id.
-	 *
+	 * Gets the transition groups associated with this time zone definition, indexed by Id.
+	 * 
 	 * @return the transition groups
 	 */
 	protected Map<String, TimeZoneTransitionGroup> getTransitionGroups() {
-		return this.transitionGroups;
+		return transitionGroups;
 	}
 
 	/***
@@ -401,9 +398,10 @@ public class TimeZoneDefinition extends ComplexProperty implements Comparator<Ti
 	 * @throws Exception
 	 *             throws Exception
 	 */
+	@Override
 	protected void writeToXml(EwsServiceXmlWriter writer, String xmlElementName)
 			throws Exception {
-		this.writeToXml(writer, this.getNamespace(), xmlElementName);
+		this.writeToXml(writer, getNamespace(), xmlElementName);
 	}
 
 }

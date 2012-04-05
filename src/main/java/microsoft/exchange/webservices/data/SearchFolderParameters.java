@@ -17,7 +17,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	private SearchFolderTraversal traversal;
 
 	/** The root folder ids. */
-	private FolderIdCollection rootFolderIds = new FolderIdCollection();
+	private final FolderIdCollection rootFolderIds = new FolderIdCollection();
 
 	/** The search filter. */
 	private SearchFilter searchFilter;
@@ -27,7 +27,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	 */
 	protected SearchFolderParameters() {
 		super();
-		this.rootFolderIds.addOnChangeEvent(this);
+		rootFolderIds.addOnChangeEvent(this);
 	}
 
 	/**
@@ -36,9 +36,8 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	 * @param complexProperty
 	 *            the complex property
 	 */
-	@Override
 	public void complexPropertyChanged(ComplexProperty complexProperty) {
-		this.propertyChanged(complexProperty);
+		propertyChanged(complexProperty);
 	}
 
 	/**
@@ -48,7 +47,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	 *            the complex property
 	 */
 	private void propertyChanged(ComplexProperty complexProperty) {
-		this.changed();
+		changed();
 	}
 
 	/**
@@ -65,13 +64,13 @@ public final class SearchFolderParameters extends ComplexProperty implements
 			throws Exception {
 		if (reader.getLocalName().equalsIgnoreCase(
 				XmlElementNames.BaseFolderIds)) {
-			this.rootFolderIds.internalClear();
-			this.rootFolderIds.loadFromXml(reader, reader.getLocalName());
+			rootFolderIds.internalClear();
+			rootFolderIds.loadFromXml(reader, reader.getLocalName());
 			return true;
 		} else if (reader.getLocalName().equalsIgnoreCase(
 				XmlElementNames.Restriction)) {
 			reader.read();
-			this.searchFilter = SearchFilter.loadFromXml(reader);
+			searchFilter = SearchFilter.loadFromXml(reader);
 			return true;
 		} else {
 			return false;
@@ -89,7 +88,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	@Override
 	protected void readAttributesFromXml(EwsServiceXmlReader reader)
 			throws Exception {
-		this.traversal = reader.readAttributeValue(SearchFolderTraversal.class,
+		traversal = reader.readAttributeValue(SearchFolderTraversal.class,
 				XmlAttributeNames.Traversal);
 	}
 
@@ -104,7 +103,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	@Override
 	protected void writeAttributesToXml(EwsServiceXmlWriter writer)
 			throws ServiceXmlSerializationException {
-		writer.writeAttributeValue(XmlAttributeNames.Traversal, this.traversal);
+		writer.writeAttributeValue(XmlAttributeNames.Traversal, traversal);
 	}
 
 	/**
@@ -118,30 +117,32 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	@Override
 	protected void writeElementsToXml(EwsServiceXmlWriter writer)
 			throws Exception {
-		if (this.searchFilter != null) {
+		if (searchFilter != null) {
 			writer.writeStartElement(XmlNamespace.Types,
 					XmlElementNames.Restriction);
-			this.searchFilter.writeToXml(writer);
+			searchFilter.writeToXml(writer);
 			writer.writeEndElement(); // Restriction
 		}
 
-		this.rootFolderIds.writeToXml(writer, XmlElementNames.BaseFolderIds);
+		rootFolderIds.writeToXml(writer, XmlElementNames.BaseFolderIds);
 	}
 
 	/**
 	 * * Validates this instance.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
+	@Override
 	public void validate() throws Exception {
 		// Search folder must have at least one root folder id.
-		if (this.rootFolderIds.getCount() == 0) {
+		if (rootFolderIds.getCount() == 0) {
 			throw new ServiceValidationException(
 					Strings.SearchParametersRootFolderIdsEmpty);
 		}
 
 		// Validate the search filter
-		if (this.searchFilter != null) {
-			this.searchFilter.internalValidate();
+		if (searchFilter != null) {
+			searchFilter.internalValidate();
 		}
 	}
 
@@ -163,7 +164,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	public void setTraversal(SearchFolderTraversal traversal) {
 		if (this.canSetFieldValue(this.traversal, traversal)) {
 			this.traversal = traversal;
-			this.changed();
+			changed();
 		}
 	}
 
@@ -177,9 +178,8 @@ public final class SearchFolderParameters extends ComplexProperty implements
 	}
 
 	/**
-	 * Gets the search filter associated with the search folder.
-	 * Available search filter classes include SearchFilter.IsEqualTo,
-	 * SearchFilter.ContainsSubstring and SearchFilter.SearchFilterCollection.
+	 * Gets the search filter associated with the search folder. Available search filter classes include SearchFilter.IsEqualTo, SearchFilter.ContainsSubstring
+	 * and SearchFilter.SearchFilterCollection.
 	 * 
 	 * @return the search filter
 	 */
@@ -201,7 +201,7 @@ public final class SearchFolderParameters extends ComplexProperty implements
 
 		if (this.canSetFieldValue(this.searchFilter, searchFilter)) {
 			this.searchFilter = searchFilter;
-			this.changed();
+			changed();
 		}
 		if (this.searchFilter != null) {
 			this.searchFilter.addOnChangeEvent(this);

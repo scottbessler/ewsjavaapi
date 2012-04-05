@@ -23,10 +23,10 @@ import java.util.List;
 import javax.xml.stream.XMLStreamException;
 
 /**
- *Represents a binding to the Exchange Autodiscover Service.
+ * Represents a binding to the Exchange Autodiscover Service.
  */
 public final class AutodiscoverService extends ExchangeServiceBase implements
-IAutodiscoverRedirectionUrl, IFunctionDelegate {
+		IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 	// region Private members
 	/** The domain. */
@@ -39,8 +39,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	private URI url;
 
 	/** The redirection url validation callback. */
-	private IAutodiscoverRedirectionUrl 
-	redirectionUrlValidationCallback;
+	private IAutodiscoverRedirectionUrl redirectionUrlValidationCallback;
 
 	/** The dns client. */
 	private AutodiscoverDnsClient dnsClient;
@@ -53,56 +52,54 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 	// Autodiscover legacy path
 	/** The Constant AutodiscoverLegacyPath. */
-	private static final String AutodiscoverLegacyPath = 
-		"/autodiscover/autodiscover.xml";
+	private static final String AutodiscoverLegacyPath =
+			"/autodiscover/autodiscover.xml";
 
 	/** Autodiscover legacy Url with protocol fill-in */
-	private static final String AutodiscoverLegacyUrl = "%s://%s" + 
+	private static final String AutodiscoverLegacyUrl = "%s://%s" +
 			AutodiscoverLegacyPath;
 
 	// Autodiscover legacy HTTPS Url
 	/** The Constant AutodiscoverLegacyHttpsUrl. */
 	private static final String AutodiscoverLegacyHttpsUrl = "https://%s" +
-	AutodiscoverLegacyPath;
+			AutodiscoverLegacyPath;
 	// Autodiscover legacy HTTP Url
 	/** The Constant AutodiscoverLegacyHttpUrl. */
 	private static final String AutodiscoverLegacyHttpUrl = "http://%s" +
-	AutodiscoverLegacyPath;
+			AutodiscoverLegacyPath;
 	// Autodiscover SOAP HTTPS Url
 	/** The Constant AutodiscoverSoapHttpsUrl. */
-	private static final String AutodiscoverSoapHttpsUrl = 
-		"https://%s/autodiscover/autodiscover.svc";
+	private static final String AutodiscoverSoapHttpsUrl =
+			"https://%s/autodiscover/autodiscover.svc";
 	// Autodiscover SOAP WS-Security HTTPS Url
 	/** The Constant AutodiscoverSoapWsSecurityHttpsUrl. */
-	private static final String AutodiscoverSoapWsSecurityHttpsUrl = 
-		AutodiscoverSoapHttpsUrl +
-		"/wssecurity";
+	private static final String AutodiscoverSoapWsSecurityHttpsUrl =
+			AutodiscoverSoapHttpsUrl +
+					"/wssecurity";
 	// Autodiscover request namespace
 	/** The Constant AutodiscoverRequestNamespace. */
 	private static final String AutodiscoverRequestNamespace =
-		"http://schemas.microsoft.com/exchange/autodiscover/" +
-		"outlook/requestschema/2006";
+			"http://schemas.microsoft.com/exchange/autodiscover/" +
+					"outlook/requestschema/2006";
 	// Maximum number of Url (or address) redirections that will be followed by
 	// an Autodiscover call
 	/** The Constant AutodiscoverMaxRedirections. */
 	protected static final int AutodiscoverMaxRedirections = 10;
 	// HTTP header indicating that SOAP Autodiscover service is enabled.
 	/** The Constant AutodiscoverSoapEnabledHeaderName. */
-	private static final String AutodiscoverSoapEnabledHeaderName = 
-		"X-SOAP-Enabled";
+	private static final String AutodiscoverSoapEnabledHeaderName =
+			"X-SOAP-Enabled";
 	// HTTP header indicating that WS-Security Autodiscover service is enabled.
 	/** The Constant AutodiscoverWsSecurityEnabledHeaderName. */
-	private static final String AutodiscoverWsSecurityEnabledHeaderName = 
-		"X-WSSecurity-Enabled";
+	private static final String AutodiscoverWsSecurityEnabledHeaderName =
+			"X-WSSecurity-Enabled";
 	// Minimum request version for Autodiscover SOAP service.
 	/** The Constant MinimumRequestVersionForAutoDiscoverSoapService. */
-	private static final ExchangeVersion 
-	MinimumRequestVersionForAutoDiscoverSoapService =
-		ExchangeVersion.Exchange2010;
+	private static final ExchangeVersion MinimumRequestVersionForAutoDiscoverSoapService =
+			ExchangeVersion.Exchange2010;
 
 	/**
-	 * Default implementation of AutodiscoverRedirectionUrlValidationCallback.
-	 * Always returns true indicating that the URL can be used.
+	 * Default implementation of AutodiscoverRedirectionUrlValidationCallback. Always returns true indicating that the URL can be used.
 	 * 
 	 * @param redirectionUrl
 	 *            the redirection url
@@ -118,8 +115,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 	// Legacy Autodiscover
 	/**
-	 * Calls the Autodiscover service to get configuration settings at the
-	 * specified URL.
+	 * Calls the Autodiscover service to get configuration settings at the specified URL.
 	 * 
 	 * @param <TSettings>
 	 *            the generic type
@@ -129,25 +125,23 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            the email address
 	 * @param url
 	 *            the url
-	 * @return The requested configuration settings. (TSettings The type of the
-	 *         settings to retrieve)
+	 * @return The requested configuration settings. (TSettings The type of the settings to retrieve)
 	 * @throws Exception
 	 *             the exception
 	 */
 	private <TSettings extends ConfigurationSettingsBase>
-	TSettings getLegacyUserSettingsAtUrl(
-			Class<TSettings> cls, String emailAddress, URI url)
-	throws Exception {
-		this
-		.traceMessage(TraceFlags.AutodiscoverConfiguration, String
+			TSettings getLegacyUserSettingsAtUrl(
+					Class<TSettings> cls, String emailAddress, URI url)
+					throws Exception {
+		traceMessage(TraceFlags.AutodiscoverConfiguration, String
 				.format("Trying to call Autodiscover for %s on %s.",
 						emailAddress, url));
 
 		TSettings settings = cls.newInstance();
 		HttpWebRequest request = this.prepareHttpWebRequestForUrl(url);
 
-		this.traceHttpRequestHeaders(
-				TraceFlags.AutodiscoverRequestHttpHeaders, 
+		traceHttpRequestHeaders(
+				TraceFlags.AutodiscoverRequestHttpHeaders,
 				request);
 		// OutputStreamWriter out = new
 		// OutputStreamWriter(request.getOutputStream());
@@ -156,14 +150,14 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		// If tracing is enabled, we generate the request in-memory so that we
 		// can pass it along to the ITraceListener. Then we copy the stream to
 		// the request stream.
-		if (this.isTraceEnabledFor(TraceFlags.AutodiscoverRequest)) {
+		if (isTraceEnabledFor(TraceFlags.AutodiscoverRequest)) {
 			ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
 
 			PrintWriter writer = new PrintWriter(memoryStream);
-			this.writeLegacyAutodiscoverRequest(emailAddress, settings, writer);
+			writeLegacyAutodiscoverRequest(emailAddress, settings, writer);
 			writer.flush();
 
-			this.traceXml(TraceFlags.AutodiscoverRequest, memoryStream);
+			traceXml(TraceFlags.AutodiscoverRequest, memoryStream);
 			// out.write(memoryStream.toString());
 			// out.close();
 			memoryStream.writeTo(urlOutStream);
@@ -172,8 +166,8 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			memoryStream.close();
 		} else {
 			PrintWriter writer = new PrintWriter(urlOutStream);
-			this.writeLegacyAutodiscoverRequest(emailAddress, settings, writer);
-			
+			writeLegacyAutodiscoverRequest(emailAddress, settings, writer);
+
 			/*  Flush Start */
 			writer.flush();
 			urlOutStream.flush();
@@ -184,7 +178,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		request.getResponseCode();
 		URI redirectUrl;
 		OutParam outParam = new OutParam();
-		if (this.tryGetRedirectionResponse(request, outParam)) {
+		if (tryGetRedirectionResponse(request, outParam)) {
 			redirectUrl = (URI) outParam.getParam();
 			settings.makeRedirectionResponse(redirectUrl);
 			return settings;
@@ -195,7 +189,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		// can pass it along to the ITraceListener. Then we parse the response
 		// from the
 		// MemoryStream.
-		if (this.isTraceEnabledFor(TraceFlags.AutodiscoverResponse)) {
+		if (isTraceEnabledFor(TraceFlags.AutodiscoverResponse)) {
 			ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
 
 			while (true) {
@@ -208,7 +202,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			}
 			memoryStream.flush();
 
-			this.traceResponse(request, memoryStream);
+			traceResponse(request, memoryStream);
 			ByteArrayInputStream memoryStreamIn = new ByteArrayInputStream(
 					memoryStream.toByteArray());
 			EwsXmlReader reader = new EwsXmlReader(memoryStreamIn);
@@ -223,10 +217,10 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 		serviceResponseStream.close();
 		try {
-			request.close(); 
+			request.close();
 		} catch (Exception e2) {
 			request = null;
-		} 
+		}
 		return settings;
 
 	}
@@ -245,7 +239,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 */
 	private void writeLegacyAutodiscoverRequest(String emailAddress,
 			ConfigurationSettingsBase settings, PrintWriter writer)
-	throws IOException {
+			throws IOException {
 		writer.write(String.format("<Autodiscover xmlns=\"%s\">",
 				AutodiscoverRequestNamespace));
 		writer.write("<Request>");
@@ -259,8 +253,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	}
 
 	/**
-	 * Gets a redirection URL to an SSL-enabled Autodiscover service from the
-	 * standard non-SSL Autodiscover URL.
+	 * Gets a redirection URL to an SSL-enabled Autodiscover service from the standard non-SSL Autodiscover URL.
 	 * 
 	 * @param domainName
 	 *            the domain name
@@ -277,15 +270,15 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *             the uRI syntax exception
 	 */
 	private URI getRedirectUrl(String domainName) throws EWSHttpException,
-	XMLStreamException, IOException, ServiceLocalException,
-	URISyntaxException {
+			XMLStreamException, IOException, ServiceLocalException,
+			URISyntaxException {
 		String url = String.format(AutodiscoverLegacyHttpUrl, "autodiscover."
 				+ domainName);
 
-		this.traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
+		traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
 				"Trying to get Autodiscover redirection URL from %s.", url));
 
-		HttpWebRequest request = new HttpClientWebRequest(this.getSimpleHttpConnectionManager());
+		HttpWebRequest request = new HttpClientWebRequest(getSimpleHttpConnectionManager());
 		try {
 			request.setUrl(URI.create(url).toURL());
 		} catch (MalformedURLException e) {
@@ -296,9 +289,9 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		request.setAllowAutoRedirect(false);
 		request.setPreAuthenticate(false);
 		request.setRequestMethod("GET");
-		request.setUseDefaultCredentials(this.getUseDefaultCredentials());
-		if (!this.getUseDefaultCredentials()) {
-			ExchangeCredentials serviceCredentials = this.getCredentials();
+		request.setUseDefaultCredentials(getUseDefaultCredentials());
+		if (!getUseDefaultCredentials()) {
+			ExchangeCredentials serviceCredentials = getCredentials();
 			if (null == serviceCredentials) {
 				throw new ServiceLocalException(Strings.CredentialsRequired);
 			}
@@ -319,18 +312,18 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		{
 			URI redirectUrl;
 			OutParam<URI> outParam = new OutParam<URI>();
-			if (this.tryGetRedirectionResponse(request, outParam))
+			if (tryGetRedirectionResponse(request, outParam))
 			{
-				redirectUrl = (URI) outParam.getParam();
+				redirectUrl = outParam.getParam();
 				return redirectUrl;
 			}
 		}
 		try {
-			request.close(); 
+			request.close();
 		} catch (Exception e2) {
 			request = null;
-		} 
-		this.traceMessage(TraceFlags.AutodiscoverConfiguration,
+		}
+		traceMessage(TraceFlags.AutodiscoverConfiguration,
 				"No Autodiscover redirection URL was returned.");
 
 		return null;
@@ -368,22 +361,21 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 							.equals("https")) &&
 							(redirectUrl.getParam().getPath()
 									.equalsIgnoreCase(
-											AutodiscoverLegacyPath))) {
-						this.traceMessage(TraceFlags.AutodiscoverConfiguration,
+									AutodiscoverLegacyPath))) {
+						traceMessage(TraceFlags.AutodiscoverConfiguration,
 								String.format("Redirection URL found: '%s'",
 										redirectUrl.getParam().toString()));
 
 						return true;
 					}
 				} catch (URISyntaxException ex) {
-					this
-					.traceMessage(
+					traceMessage(
 							TraceFlags.AutodiscoverConfiguration,
 							String
-							.format(
-									"Invalid redirection URL " +
-									"was returned: '%s'",
-									location));
+									.format(
+											"Invalid redirection URL " +
+													"was returned: '%s'",
+											location));
 					return false;
 				}
 			}
@@ -404,43 +396,43 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @throws Exception
 	 *             the exception
 	 */
-	protected <TSettings extends ConfigurationSettingsBase> 
-	TSettings getLegacyUserSettings(
-			Class<TSettings> cls, String emailAddress) throws Exception	{
+	protected <TSettings extends ConfigurationSettingsBase>
+			TSettings getLegacyUserSettings(
+					Class<TSettings> cls, String emailAddress) throws Exception {
 		/*int currentHop = 1;
 		return this.internalGetConfigurationSettings(cls, emailAddress,
 				currentHop);*/
-		
-		// If Url is specified, call service directly.
-        if (this.url != null)
-        {
-            // this.Uri is intended for Autodiscover SOAP service, convert to Legacy endpoint URL.
-            URI autodiscoverUrl = new URI(this.url.toString()+AutodiscoverLegacyPath);
-            return this.getLegacyUserSettingsAtUrl(cls, emailAddress, autodiscoverUrl);
-        }
 
-        // If Domain is specified, figure out the endpoint Url and call service.
-        else if (!(this.domain == null || this.domain.isEmpty()))
-        {
-            URI autodiscoverUrl = new URI(String.format(AutodiscoverLegacyHttpsUrl, this.domain));
-            return this.getLegacyUserSettingsAtUrl(cls, 
+		// If Url is specified, call service directly.
+		if (url != null)
+		{
+			// this.Uri is intended for Autodiscover SOAP service, convert to Legacy endpoint URL.
+			URI autodiscoverUrl = new URI(url.toString() + AutodiscoverLegacyPath);
+			return this.getLegacyUserSettingsAtUrl(cls, emailAddress, autodiscoverUrl);
+		}
+
+		// If Domain is specified, figure out the endpoint Url and call service.
+		else if (!(domain == null || domain.isEmpty()))
+		{
+			URI autodiscoverUrl = new URI(String.format(AutodiscoverLegacyHttpsUrl, domain));
+			return this.getLegacyUserSettingsAtUrl(cls,
 					emailAddress, autodiscoverUrl);
-        }
-        else
-        {
-            // No Url or Domain specified, need to 
-        	//figure out which endpoint to use.
-            int currentHop = 1;
-            OutParam<Integer> outParam = new OutParam();
-            outParam.setParam(new Integer(currentHop));
-            List<String> redirectionEmailAddresses = new ArrayList<String>();
-            return this.internalGetLegacyUserSettings(
-            	cls,
-                emailAddress,
-                redirectionEmailAddresses,
-                outParam);
-        }
-			}
+		}
+		else
+		{
+			// No Url or Domain specified, need to
+			// figure out which endpoint to use.
+			int currentHop = 1;
+			OutParam<Integer> outParam = new OutParam();
+			outParam.setParam(new Integer(currentHop));
+			List<String> redirectionEmailAddresses = new ArrayList<String>();
+			return this.internalGetLegacyUserSettings(
+					cls,
+					emailAddress,
+					redirectionEmailAddresses,
+					outParam);
+		}
+	}
 
 	/**
 	 * Calls the Autodiscover service to retrieve configuration settings.
@@ -457,31 +449,31 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @throws Exception
 	 *             the exception
 	 */
-	private <TSettings extends ConfigurationSettingsBase> 
-	TSettings internalGetLegacyUserSettings(
-			Class<TSettings> cls, 
-			String emailAddress, 
-			List<String> redirectionEmailAddresses, 
-			OutParam<Integer> currentHop)
-	throws Exception {
+	private <TSettings extends ConfigurationSettingsBase>
+			TSettings internalGetLegacyUserSettings(
+					Class<TSettings> cls,
+					String emailAddress,
+					List<String> redirectionEmailAddresses,
+					OutParam<Integer> currentHop)
+					throws Exception {
 		String domainName = EwsUtilities.domainFromEmailAddress(emailAddress);
 
 		int scpUrlCount;
 		OutParam<Integer> outParamInt = new OutParam<Integer>();
-		 List<URI> urls = this.getAutodiscoverServiceUrls(domainName, outParamInt);
-		 scpUrlCount = outParamInt.getParam().intValue();
-         if (urls.size() == 0)
-         {
-             throw new ServiceValidationException(
-			 		Strings.AutodiscoverServiceRequestRequiresDomainOrUrl);
-         }
+		List<URI> urls = getAutodiscoverServiceUrls(domainName, outParamInt);
+		scpUrlCount = outParamInt.getParam().intValue();
+		if (urls.size() == 0)
+		{
+			throw new ServiceValidationException(
+					Strings.AutodiscoverServiceRequestRequiresDomainOrUrl);
+		}
 
 		// Assume caller is not inside the Intranet, regardless of whether SCP
 		// Urls
 		// were returned or not. SCP Urls are only relevent if one of them
 		// returns
 		// valid Autodiscover settings.
-		this.isExternal = true;
+		isExternal = true;
 
 		int currentUrlIndex = 0;
 
@@ -502,25 +494,24 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 					// Not external if Autodiscover endpoint found via SCP
 					// returned the settings.
 					if (isScpUrl) {
-						this.isExternal = false;
+						isExternal = false;
 					}
-					this.url = autodiscoverUrl;
+					url = autodiscoverUrl;
 					return settings;
 				case RedirectUrl:
 					if (currentHop.getParam() < AutodiscoverMaxRedirections) {
-						currentHop.setParam(currentHop.getParam().intValue()+1);
+						currentHop.setParam(currentHop.getParam().intValue() + 1);
 
-						this
-						.traceMessage(
+						traceMessage(
 								TraceFlags.AutodiscoverResponse,
 								String
-								.format(
-										"Autodiscover " +
-										"service " +
-										"returned " +
-										"redirection URL '%s'.",
-										settings
-										.getRedirectTarget()));
+										.format(
+												"Autodiscover " +
+														"service " +
+														"returned " +
+														"redirection URL '%s'.",
+												settings
+														.getRedirectTarget()));
 
 						urls.add(currentUrlIndex, new URI(
 								settings.getRedirectTarget()));
@@ -532,30 +523,29 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 					}
 				case RedirectAddress:
 					if (currentHop.getParam() < AutodiscoverMaxRedirections) {
-						currentHop.setParam(currentHop.getParam().intValue()+1);
+						currentHop.setParam(currentHop.getParam().intValue() + 1);
 
-						this
-						.traceMessage(
+						traceMessage(
 								TraceFlags.AutodiscoverResponse,
 								String
-								.format(
-										"Autodiscover " +
-										"service " +
-										"returned " +
-										"redirection email " +
-										"address '%s'.",
-										settings
-										.getRedirectTarget()));
+										.format(
+												"Autodiscover " +
+														"service " +
+														"returned " +
+														"redirection email " +
+														"address '%s'.",
+												settings
+														.getRedirectTarget()));
 						// Bug E14:255576 If this email address was already tried, we may have a loop
-                        // in SCP lookups. Disable consideration of SCP records.
-                        this.disableScpLookupIfDuplicateRedirection(
-								settings.getRedirectTarget(), 
+						// in SCP lookups. Disable consideration of SCP records.
+						disableScpLookupIfDuplicateRedirection(
+								settings.getRedirectTarget(),
 								redirectionEmailAddresses);
 
-                        return this.internalGetLegacyUserSettings(cls,
-                                        settings.getRedirectTarget(),
-                                        redirectionEmailAddresses,
-                                        currentHop);
+						return this.internalGetLegacyUserSettings(cls,
+								settings.getRedirectTarget(),
+								redirectionEmailAddresses,
+								currentHop);
 					} else {
 						throw new AutodiscoverLocalException(
 								Strings.MaximumRedirectionHopsExceeded);
@@ -565,13 +555,12 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 					// to be conclusive.
 					// We'll try the next one and record the error for later.
 					if (isScpUrl) {
-						this
-						.traceMessage(
+						traceMessage(
 								TraceFlags.AutodiscoverConfiguration,
 								"Error returned by " +
-								"Autodiscover service " +
-								"found via SCP, treating " +
-						"as inconclusive.");
+										"Autodiscover service " +
+										"found via SCP, treating " +
+										"as inconclusive.");
 
 						delayedException = new AutodiscoverRemoteException(
 								Strings.AutodiscoverError, settings.getError());
@@ -583,14 +572,14 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 					break;
 				default:
 					EwsUtilities
-					.EwsAssert(false,
-							"Autodiscover.GetConfigurationSettings",
-							"An unexpected error has occured. " +
-					"This code path should never be reached.");
+							.EwsAssert(false,
+									"Autodiscover.GetConfigurationSettings",
+									"An unexpected error has occured. " +
+											"This code path should never be reached.");
 					break;
 				}
 			} catch (XMLStreamException ex) {
-				this.traceMessage(TraceFlags.AutodiscoverConfiguration, String
+				traceMessage(TraceFlags.AutodiscoverConfiguration, String
 						.format("%s failed: XML parsing error: %s", url, ex
 								.getMessage()));
 
@@ -598,34 +587,30 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 				// next.
 				currentUrlIndex++;
 			} catch (IOException ex) {
-                this.traceMessage(
-                    TraceFlags.AutodiscoverConfiguration,
-                    String.format("%s failed: I/O error: %s", 
-							url, ex.getMessage()));
+				traceMessage(
+						TraceFlags.AutodiscoverConfiguration,
+						String.format("%s failed: I/O error: %s",
+								url, ex.getMessage()));
 
-                // The content at the URL wasn't a valid response, let's try the next.
-                currentUrlIndex++;
-            } catch (Exception ex) {
+				// The content at the URL wasn't a valid response, let's try the next.
+				currentUrlIndex++;
+			} catch (Exception ex) {
 				HttpWebRequest response = null;
 				URI redirectUrl;
 				OutParam<URI> outParam1 = new OutParam<URI>();
-				if ((response != null) &&
-						this.tryGetRedirectionResponse(response, outParam1)) {
+				if ((response != null) && tryGetRedirectionResponse(response, outParam1)) {
 					redirectUrl = outParam1.getParam();
-					this.traceMessage(TraceFlags.AutodiscoverConfiguration,
-							String.format(
-									"Host returned a redirection to url %s",
-									redirectUrl.toString()));
+					traceMessage(TraceFlags.AutodiscoverConfiguration, String.format("Host returned a redirection to url %s", redirectUrl.toString()));
 
-					currentHop.setParam(currentHop.getParam().intValue()+1);
+					currentHop.setParam(currentHop.getParam().intValue() + 1);
 					urls.add(currentUrlIndex, redirectUrl);
 				} else {
 					if (response != null) {
-						this.processHttpErrorResponse(response, ex);
+						processHttpErrorResponse(response, ex);
 
 					}
 
-					this.traceMessage(TraceFlags.AutodiscoverConfiguration,
+					traceMessage(TraceFlags.AutodiscoverConfiguration,
 							String.format("%s failed: %s (%s)", url, ex
 									.getClass().getName(), ex.getMessage()));
 
@@ -642,7 +627,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		// redirection URL to get the configuration settings for this email
 		// address. (This will be a common scenario for
 		// DataCenter deployments).
-		URI redirectionUrl = this.getRedirectUrl(domainName);
+		URI redirectionUrl = getRedirectUrl(domainName);
 		OutParam<TSettings> outParam = new OutParam<TSettings>();
 		if ((redirectionUrl != null)
 				&& this.tryLastChanceHostRedirection(cls, emailAddress,
@@ -654,7 +639,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			// chance, try to get an appropriate SRV Record
 			// using DnsQuery. If successful, use this redirection URL to get
 			// the configuration settings for this email address.
-			redirectionUrl = this.getRedirectionUrlFromDnsSrvRecord(domainName);
+			redirectionUrl = getRedirectionUrlFromDnsSrvRecord(domainName);
 			if ((redirectionUrl != null)
 					&& this.tryLastChanceHostRedirection(cls, emailAddress,
 							redirectionUrl, outParam)) {
@@ -681,22 +666,20 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *             the exception
 	 */
 	protected URI getRedirectionUrlFromDnsSrvRecord(String domainName)
-	throws Exception {
-		
-		this
-		.traceMessage(
+			throws Exception {
+
+		traceMessage(
 				TraceFlags.AutodiscoverConfiguration,
 				String
-				.format(
-						"Trying to get Autodiscover host " +
-						"from DNS SRV record for %s.",
-						domainName));
+						.format(
+								"Trying to get Autodiscover host " +
+										"from DNS SRV record for %s.",
+								domainName));
 
-		String hostname = this.dnsClient
-		.findAutodiscoverHostFromSrv(domainName);
+		String hostname = dnsClient
+				.findAutodiscoverHostFromSrv(domainName);
 		if (!(hostname == null || hostname.isEmpty())) {
-			this
-			.traceMessage(TraceFlags.AutodiscoverConfiguration,
+			traceMessage(TraceFlags.AutodiscoverConfiguration,
 					String.format(
 							"Autodiscover host %s was returned.",
 							hostname));
@@ -704,7 +687,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			return new URI(String.format(AutodiscoverLegacyHttpsUrl,
 					hostname));
 		} else {
-			this.traceMessage(TraceFlags.AutodiscoverConfiguration,
+			traceMessage(TraceFlags.AutodiscoverConfiguration,
 					"No matching Autodiscover DNS SRV records were found.");
 
 			return null;
@@ -732,22 +715,19 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @throws Exception
 	 *             the exception
 	 */
-	private <TSettings extends ConfigurationSettingsBase> boolean 
-	tryLastChanceHostRedirection(
-			Class<TSettings> cls, String emailAddress, URI redirectionUrl,
-			OutParam<TSettings> settings) throws AutodiscoverLocalException,
-			AutodiscoverRemoteException, Exception {
+	private <TSettings extends ConfigurationSettingsBase> boolean
+			tryLastChanceHostRedirection(
+					Class<TSettings> cls, String emailAddress, URI redirectionUrl,
+					OutParam<TSettings> settings) throws AutodiscoverLocalException,
+					AutodiscoverRemoteException, Exception {
 
 		List<String> redirectionEmailAddresses = new ArrayList<String>();
-
 
 		// Bug 60274: Performing a non-SSL HTTP GET to retrieve a redirection
 		// URL is potentially unsafe. We allow the caller
 		// to specify delegate to be called to determine whether we are allowed
 		// to use the redirection URL.
-		if (this
-				.callRedirectionUrlValidationCallback(
-						redirectionUrl.toString())) {
+		if (callRedirectionUrlValidationCallback(redirectionUrl.toString())) {
 			for (int currentHop = 0; currentHop < AutodiscoverService.AutodiscoverMaxRedirections; currentHop++) {
 				try {
 					settings.setParam(this.getLegacyUserSettingsAtUrl(cls,
@@ -759,98 +739,94 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 					case Error:
 						throw new AutodiscoverRemoteException(
 								Strings.AutodiscoverError, settings.getParam()
-								.getError());
+										.getError());
 					case RedirectAddress:
-						
-						// If this email address was already tried, 
-						//we may have a loop
-                        // in SCP lookups. Disable consideration of SCP records.
-                        this.disableScpLookupIfDuplicateRedirection(settings.getParam().getRedirectTarget(), 
+
+						// If this email address was already tried,
+						// we may have a loop
+						// in SCP lookups. Disable consideration of SCP records.
+						disableScpLookupIfDuplicateRedirection(settings.getParam().getRedirectTarget(),
 								redirectionEmailAddresses);
-                        OutParam<Integer> outParam = new OutParam<Integer>();
-                        outParam.setParam(new Integer(currentHop));
-                        settings.setParam(
+						OutParam<Integer> outParam = new OutParam<Integer>();
+						outParam.setParam(new Integer(currentHop));
+						settings.setParam(
 								this.internalGetLegacyUserSettings(cls,
-                            emailAddress,
-                            redirectionEmailAddresses,
-                            outParam));
-                        currentHop = outParam.getParam().intValue();
+										emailAddress,
+										redirectionEmailAddresses,
+										outParam));
+						currentHop = outParam.getParam().intValue();
 						return true;
 					case RedirectUrl:
 						try {
 							redirectionUrl = new URI(settings.getParam()
 									.getRedirectTarget());
 						} catch (URISyntaxException ex) {
-							this
-							.traceMessage(
+							traceMessage(
 									TraceFlags.
 									AutodiscoverConfiguration,
 									String
-									.format(
-											"Service " +
-											"returned " +
-											"invalid " +
-											"redirection " +
-											"URL %s",
-											settings
-											.getParam()
-											.getRedirectTarget()));
+											.format(
+													"Service " +
+															"returned " +
+															"invalid " +
+															"redirection " +
+															"URL %s",
+													settings
+															.getParam()
+															.getRedirectTarget()));
 							return false;
 						}
 						break;
 					default:
-						 String failureMessage = String.format(
-                                 "Autodiscover call at %s failed with error %s, target %s",
-                                 redirectionUrl,
-                                 settings.getParam().getResponseType(),
-                                 settings.getParam().getRedirectTarget());
-                             this.traceMessage( 
-							 		TraceFlags.AutodiscoverConfiguration, failureMessage);
-						                             
+						String failureMessage = String.format(
+								"Autodiscover call at %s failed with error %s, target %s",
+								redirectionUrl,
+								settings.getParam().getResponseType(),
+								settings.getParam().getRedirectTarget());
+						traceMessage(
+								TraceFlags.AutodiscoverConfiguration, failureMessage);
+
 						return false;
 					}
 				} catch (XMLStreamException ex) {
 					// If the response is malformed, it wasn't a valid
 					// Autodiscover endpoint.
-					this
-					.traceMessage(TraceFlags.AutodiscoverConfiguration,
+					traceMessage(TraceFlags.AutodiscoverConfiguration,
 							String.format(
 									"%s failed: XML parsing error: %s",
 									redirectionUrl.toString(), ex
-									.getMessage()));
+											.getMessage()));
 					return false;
 				} catch (IOException ex)
-                {
-                    this.traceMessage(
-                        TraceFlags.AutodiscoverConfiguration,
-                        String.format("%s failed: I/O error: %s", 
-								redirectionUrl, ex.getMessage()));
-                    return false;
-                }catch (Exception ex) {
+				{
+					traceMessage(
+							TraceFlags.AutodiscoverConfiguration,
+							String.format("%s failed: I/O error: %s",
+									redirectionUrl, ex.getMessage()));
+					return false;
+				} catch (Exception ex) {
 
 					HttpWebRequest response = null;
 					OutParam<URI> outParam = new OutParam<URI>();
 					if ((response != null)
-							&& this.tryGetRedirectionResponse(response,
+							&& tryGetRedirectionResponse(response,
 									outParam)) {
 						redirectionUrl = outParam.getParam();
-						this
-						.traceMessage(
+						traceMessage(
 								TraceFlags.AutodiscoverConfiguration,
 								String
-								.format(
-										"Host returned a " +
-										"redirection" +
-										" to url %s",
-										redirectionUrl));
+										.format(
+												"Host returned a " +
+														"redirection" +
+														" to url %s",
+												redirectionUrl));
 
 					} else {
 						if (response != null) {
-							this.processHttpErrorResponse(response, ex);
+							processHttpErrorResponse(response, ex);
 						}
 
-						this
-						.traceMessage(
+						traceMessage(
 								TraceFlags.AutodiscoverConfiguration,
 								String.format("%s failed: %s (%s)",
 										url, ex.getClass().getName(),
@@ -872,23 +848,23 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param redirectionEmailAddresses
 	 *            The list of prior redirection email addresses.
 	 */
-    private void disableScpLookupIfDuplicateRedirection(
-			String emailAddress, 
+	private void disableScpLookupIfDuplicateRedirection(
+			String emailAddress,
 			List<String> redirectionEmailAddresses) {
-        // SMTP addresses are case-insensitive so entries are converted to lower-case.
-        emailAddress = emailAddress.toLowerCase();
+		// SMTP addresses are case-insensitive so entries are converted to lower-case.
+		emailAddress = emailAddress.toLowerCase();
 
-        if (redirectionEmailAddresses.contains(emailAddress))
-        {
-            this.enableScpLookup = false;
-        }
-        else
-        {
-            redirectionEmailAddresses.add(emailAddress);
-        }
-    }
+		if (redirectionEmailAddresses.contains(emailAddress))
+		{
+			enableScpLookup = false;
+		}
+		else
+		{
+			redirectionEmailAddresses.add(emailAddress);
+		}
+	}
 
-    /**
+	/**
 	 * Gets user settings from Autodiscover legacy endpoint.
 	 * 
 	 * @param emailAddress
@@ -897,25 +873,24 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            The requested settings.
 	 * @return GetUserSettingsResponse
 	 */
-    protected GetUserSettingsResponse internalGetLegacyUserSettings(
-			String emailAddress, 
+	protected GetUserSettingsResponse internalGetLegacyUserSettings(
+			String emailAddress,
 			List<UserSettingName> requestedSettings) throws Exception {
-        // Cannot call legacy Autodiscover service with WindowsLive credentials
-        if ((this.getCredentials() != null) && (this.getCredentials() instanceof WindowsLiveCredentials)) {
-            throw new AutodiscoverLocalException(
+		// Cannot call legacy Autodiscover service with WindowsLive credentials
+		if ((getCredentials() != null) && (getCredentials() instanceof WindowsLiveCredentials)) {
+			throw new AutodiscoverLocalException(
 					Strings.WLIDCredentialsCannotBeUsedWithLegacyAutodiscover);
-        }
+		}
 
-        OutlookConfigurationSettings settings = this.getLegacyUserSettings(
-				OutlookConfigurationSettings.class, 
+		OutlookConfigurationSettings settings = this.getLegacyUserSettings(
+				OutlookConfigurationSettings.class,
 				emailAddress);
 
-        return settings.convertSettings(emailAddress, requestedSettings);
-    }
+		return settings.convertSettings(emailAddress, requestedSettings);
+	}
 
-    /**
-	 * Calls the SOAP Autodiscover service 
-	 * for user settings for a single SMTP address.
+	/**
+	 * Calls the SOAP Autodiscover service for user settings for a single SMTP address.
 	 * 
 	 * @param smtpAddress
 	 *            SMTP address.
@@ -923,58 +898,58 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            The requested settings.
 	 * @return GetUserSettingsResponse
 	 */
-    protected GetUserSettingsResponse internalGetSoapUserSettings(
-			String smtpAddress, 
+	protected GetUserSettingsResponse internalGetSoapUserSettings(
+			String smtpAddress,
 			List<UserSettingName> requestedSettings) throws Exception {
-        List<String> smtpAddresses = new ArrayList<String>();
-        smtpAddresses.add(smtpAddress);
+		List<String> smtpAddresses = new ArrayList<String>();
+		smtpAddresses.add(smtpAddress);
 
-        List<String> redirectionEmailAddresses = new ArrayList<String>();
-        redirectionEmailAddresses.add(smtpAddress.toLowerCase());
+		List<String> redirectionEmailAddresses = new ArrayList<String>();
+		redirectionEmailAddresses.add(smtpAddress.toLowerCase());
 
-        for (int currentHop = 0; currentHop < AutodiscoverService.AutodiscoverMaxRedirections; currentHop++)
-        {
-            GetUserSettingsResponse response = this.getUserSettings(smtpAddresses, 
+		for (int currentHop = 0; currentHop < AutodiscoverService.AutodiscoverMaxRedirections; currentHop++)
+		{
+			GetUserSettingsResponse response = this.getUserSettings(smtpAddresses,
 					requestedSettings).getTResponseAtIndex(0);
 
-            switch (response.getErrorCode()) {
-                case RedirectAddress:
-                    this.traceMessage(
-                        TraceFlags.AutodiscoverResponse,
-                        String.format("Autodiscover service returned redirection email address '%s'.", 
+			switch (response.getErrorCode()) {
+			case RedirectAddress:
+				traceMessage(
+						TraceFlags.AutodiscoverResponse,
+						String.format("Autodiscover service returned redirection email address '%s'.",
 								response.getRedirectTarget()));
 
-                    smtpAddresses.clear();
-                    smtpAddresses.add(response.getRedirectTarget().
-							toLowerCase());
-                    this.url = null;
-                    this.domain = null;
+				smtpAddresses.clear();
+				smtpAddresses.add(response.getRedirectTarget().
+						toLowerCase());
+				url = null;
+				domain = null;
 
-                    // If this email address was already tried, 
-                    //we may have a loop
-                    // in SCP lookups. Disable consideration of SCP records.
-                    this.disableScpLookupIfDuplicateRedirection(response.getRedirectTarget(), 
-							redirectionEmailAddresses);
-                    break;
+				// If this email address was already tried,
+				// we may have a loop
+				// in SCP lookups. Disable consideration of SCP records.
+				disableScpLookupIfDuplicateRedirection(response.getRedirectTarget(),
+						redirectionEmailAddresses);
+				break;
 
-                case RedirectUrl:
-                    this.traceMessage(
-                        TraceFlags.AutodiscoverResponse,
-                        String.format("Autodiscover service returned redirection URL '%s'.", 
+			case RedirectUrl:
+				traceMessage(
+						TraceFlags.AutodiscoverResponse,
+						String.format("Autodiscover service returned redirection URL '%s'.",
 								response.getRedirectTarget()));
 
-                    this.url = new URI(response.getRedirectTarget());
-                    break;
+				url = new URI(response.getRedirectTarget());
+				break;
 
-                case NoError:
-                default:
-                    return response;
-            }
-        }
+			case NoError:
+			default:
+				return response;
+			}
+		}
 
-        throw new AutodiscoverLocalException(
+		throw new AutodiscoverLocalException(
 				Strings.AutodiscoverCouldNotBeLocated);
-    }
+	}
 
 	/**
 	 * Gets the user settings using Autodiscover SOAP service.
@@ -989,17 +964,18 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 */
 	protected GetUserSettingsResponseCollection getUserSettings(
 			final List<String> smtpAddresses, List<UserSettingName> settings)
-	throws Exception {
+			throws Exception {
 		EwsUtilities.validateParam(smtpAddresses, "smtpAddresses");
 		EwsUtilities.validateParam(settings, "settings");
 
-		return (GetUserSettingsResponseCollection) this.getSettings(
+		return this.getSettings(
 				GetUserSettingsResponseCollection.class, UserSettingName.class,
-				smtpAddresses, settings, null, this, 
+				smtpAddresses, settings, null, this,
 				new IFuncDelegate<String>() {
+					@Override
 					public String func() throws FormatException {
 						return EwsUtilities
-						.domainFromEmailAddress(smtpAddresses.get(0));
+								.domainFromEmailAddress(smtpAddresses.get(0));
 					}
 				});
 	}
@@ -1020,7 +996,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param settings
 	 *            The settings.
 	 * @param requestedVersion
-	 * 			  Requested version of the Exchange service.
+	 *            Requested version of the Exchange service.
 	 * @param getSettingsMethod
 	 *            The method to use.
 	 * @param getDomainMethod
@@ -1029,21 +1005,21 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @throws Exception
 	 *             the exception
 	 */
-	private <TGetSettingsResponseCollection, TSettingName> 
-	TGetSettingsResponseCollection getSettings(
-			Class<TGetSettingsResponseCollection> cls,
-			Class<TSettingName> cls1,
-			List<String> identities,
-			List<TSettingName> settings,
-			ExchangeVersion requestedVersion,
-			IFunctionDelegate<List<String>, List<TSettingName>, 
-			ExchangeVersion, URI, 
-			TGetSettingsResponseCollection> getSettingsMethod,
-			IFuncDelegate<String> getDomainMethod) throws Exception {
+	private <TGetSettingsResponseCollection, TSettingName>
+			TGetSettingsResponseCollection getSettings(
+					Class<TGetSettingsResponseCollection> cls,
+					Class<TSettingName> cls1,
+					List<String> identities,
+					List<TSettingName> settings,
+					ExchangeVersion requestedVersion,
+					IFunctionDelegate<List<String>, List<TSettingName>,
+					ExchangeVersion, URI,
+					TGetSettingsResponseCollection> getSettingsMethod,
+					IFuncDelegate<String> getDomainMethod) throws Exception {
 		TGetSettingsResponseCollection response;
 
 		// Autodiscover service only exists in E14 or later.
-		if (this.getRequestedServerVersion().compareTo(
+		if (getRequestedServerVersion().compareTo(
 				MinimumRequestVersionForAutoDiscoverSoapService) < 0) {
 			throw new ServiceVersionException(String.format(
 					Strings.AutodiscoverServiceIncompatibleWithRequestVersion,
@@ -1051,20 +1027,20 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		}
 
 		// If Url is specified, call service directly.
-		if (this.url != null) {
-			return getSettingsMethod.func(identities, settings, 
-					requestedVersion, this.url);
+		if (url != null) {
+			return getSettingsMethod.func(identities, settings,
+					requestedVersion, url);
 
 		}
 		// If Domain is specified, determine endpoint Url and call service.
-		else if (!(this.domain == null || this.domain.isEmpty())) {
-			URI autodiscoverUrl = this.getAutodiscoverEndpointUrl(this.domain);
-			response = getSettingsMethod.func(identities, settings, 
-					requestedVersion, 
+		else if (!(domain == null || domain.isEmpty())) {
+			URI autodiscoverUrl = getAutodiscoverEndpointUrl(domain);
+			response = getSettingsMethod.func(identities, settings,
+					requestedVersion,
 					autodiscoverUrl);
 
 			// If we got this far, response was successful, set Url.
-			this.url = autodiscoverUrl;
+			url = autodiscoverUrl;
 			return response;
 		}
 		// No Url or Domain specified, need to figure out which endpoint(s) to
@@ -1075,14 +1051,14 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			// were returned or not. SCP Urls are only relevent if one of them
 			// returns
 			// valid Autodiscover settings.
-			this.isExternal = true;
+			isExternal = true;
 
 			URI autodiscoverUrl;
 
 			String domainName = getDomainMethod.func();
 			int scpHostCount;
 			OutParam<Integer> outParam = new OutParam<Integer>();
-			List<String> hosts = this.getAutodiscoverServiceHosts(domainName,
+			List<String> hosts = getAutodiscoverServiceHosts(domainName,
 					outParam);
 			scpHostCount = outParam.getParam();
 			if (hosts.size() == 0) {
@@ -1094,19 +1070,19 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 				String host = hosts.get(currentHostIndex);
 				boolean isScpHost = currentHostIndex < scpHostCount;
 				OutParam<URI> outParams = new OutParam<URI>();
-				if (this.tryGetAutodiscoverEndpointUrl(host, outParams)) {
+				if (tryGetAutodiscoverEndpointUrl(host, outParams)) {
 					autodiscoverUrl = outParams.getParam();
-					response = getSettingsMethod.func(identities, settings, 
-							requestedVersion, 
+					response = getSettingsMethod.func(identities, settings,
+							requestedVersion,
 							autodiscoverUrl);
 
 					// If we got this far, the response was successful, set Url.
-					this.url = autodiscoverUrl;
+					url = autodiscoverUrl;
 
 					// Not external if Autodiscover endpoint found via SCP
 					// returned the settings.
 					if (isScpHost) {
-						this.isExternal = false;
+						isExternal = false;
 					}
 
 					return response;
@@ -1115,21 +1091,20 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 			// Next-to-last chance: try unauthenticated GET over HTTP to be
 			// redirected to appropriate service endpoint.
-			autodiscoverUrl = this.getRedirectUrl(domainName);
+			autodiscoverUrl = getRedirectUrl(domainName);
 			OutParam<URI> outParamUrl = new OutParam<URI>();
 			if ((autodiscoverUrl != null) &&
-					this
-					.callRedirectionUrlValidationCallback(
-							autodiscoverUrl.toString()) &&
-							this.tryGetAutodiscoverEndpointUrl(autodiscoverUrl
-									.getHost(), outParamUrl)) {
+					callRedirectionUrlValidationCallback(
+					autodiscoverUrl.toString()) &&
+					tryGetAutodiscoverEndpointUrl(autodiscoverUrl
+							.getHost(), outParamUrl)) {
 				autodiscoverUrl = outParamUrl.getParam();
-				response = getSettingsMethod.func(identities, settings, 
-						requestedVersion, 
+				response = getSettingsMethod.func(identities, settings,
+						requestedVersion,
 						autodiscoverUrl);
 
 				// If we got this far, the response was successful, set Url.
-				this.url = autodiscoverUrl;
+				url = autodiscoverUrl;
 
 				return response;
 			}
@@ -1137,21 +1112,19 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			// Last Chance: try to read autodiscover SRV Record from DNS. If we
 			// find one, use
 			// the hostname returned to construct an Autodiscover endpoint URL.
-			autodiscoverUrl = this
-			.getRedirectionUrlFromDnsSrvRecord(domainName);
+			autodiscoverUrl = getRedirectionUrlFromDnsSrvRecord(domainName);
 			if ((autodiscoverUrl != null) &&
-					this
-					.callRedirectionUrlValidationCallback(
-							autodiscoverUrl.toString()) &&
-							this.tryGetAutodiscoverEndpointUrl(autodiscoverUrl
-									.getHost(), outParamUrl)) {
+					callRedirectionUrlValidationCallback(
+					autodiscoverUrl.toString()) &&
+					tryGetAutodiscoverEndpointUrl(autodiscoverUrl
+							.getHost(), outParamUrl)) {
 				autodiscoverUrl = outParamUrl.getParam();
-				response = getSettingsMethod.func(identities, settings, 
+				response = getSettingsMethod.func(identities, settings,
 						requestedVersion,
 						autodiscoverUrl);
 
 				// If we got this far, the response was successful, set Url.
-				this.url = autodiscoverUrl;
+				url = autodiscoverUrl;
 
 				return response;
 			} else {
@@ -1169,7 +1142,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param settings
 	 *            The settings.
 	 * @param requestedVersion
-	 * 			  Requested version of the Exchange service.
+	 *            Requested version of the Exchange service.
 	 * @param autodiscoverUrl
 	 *            The autodiscover URL.
 	 * @return GetUserSettingsResponse collection.
@@ -1195,9 +1168,9 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			// Did we get redirected?
 			if (response.getErrorCode() == AutodiscoverErrorCode.RedirectUrl
 					&& response.getRedirectionUrl() != null) {
-				this.traceMessage(
-                        TraceFlags.AutodiscoverConfiguration,
-                        String.format("Request to %s returned redirection to %s", 
+				traceMessage(
+						TraceFlags.AutodiscoverConfiguration,
+						String.format("Request to %s returned redirection to %s",
 								autodiscoverUrl.toString(), response.getRedirectionUrl()));
 
 				autodiscoverUrl = response.getRedirectionUrl();
@@ -1206,7 +1179,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			}
 		}
 
-		this.traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
+		traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
 				"Maximum number of redirection hops %d exceeded",
 				AutodiscoverMaxRedirections));
 
@@ -1222,23 +1195,24 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param settings
 	 *            The settings.
 	 * @param requestedVersion
-	 * 			  Requested version of the Exchange service.
+	 *            Requested version of the Exchange service.
 	 * @return GetDomainSettingsResponse collection.
 	 * @throws Exception
 	 *             the exception
 	 */
 	protected GetDomainSettingsResponseCollection getDomainSettings(
 			final List<String> domains, List<DomainSettingName> settings,
-            ExchangeVersion requestedVersion)
-	throws Exception {
+			ExchangeVersion requestedVersion)
+			throws Exception {
 		EwsUtilities.validateParam(domains, "domains");
 		EwsUtilities.validateParam(settings, "settings");
 
-		return (GetDomainSettingsResponseCollection) this.getSettings(
+		return this.getSettings(
 				GetDomainSettingsResponseCollection.class,
-				DomainSettingName.class, domains, settings, 
+				DomainSettingName.class, domains, settings,
 				requestedVersion, this,
 				new IFuncDelegate<String>() {
+					@Override
 					public String func() {
 						return domains.get(0);
 					}
@@ -1253,7 +1227,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param settings
 	 *            The settings.
 	 * @param requestedVersion
-	 * 			  Requested version of the Exchange service.
+	 *            Requested version of the Exchange service.
 	 * @param autodiscoverUrl
 	 *            The autodiscover URL.
 	 * @return GetDomainSettingsResponse Collection.
@@ -1286,7 +1260,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			}
 		}
 
-		this.traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
+		traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
 				"Maximum number of redirection hops %d exceeded",
 				AutodiscoverMaxRedirections));
 
@@ -1306,7 +1280,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	private URI getAutodiscoverEndpointUrl(String host) throws Exception {
 		URI autodiscoverUrl = null;
 		OutParam<URI> outParam = new OutParam<URI>();
-		if (this.tryGetAutodiscoverEndpointUrl(host, outParam)) {
+		if (tryGetAutodiscoverEndpointUrl(host, outParam)) {
 			return autodiscoverUrl;
 		} else {
 			throw new AutodiscoverLocalException(
@@ -1325,31 +1299,30 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @throws Exception
 	 *             the exception
 	 */
-	private boolean tryGetAutodiscoverEndpointUrl(String host, 
+	private boolean tryGetAutodiscoverEndpointUrl(String host,
 			OutParam<URI> url)
-	throws Exception {
+			throws Exception {
 		EnumSet<AutodiscoverEndpoints> endpoints;
-		OutParam<EnumSet<AutodiscoverEndpoints>> outParam = 
-			new OutParam<EnumSet<AutodiscoverEndpoints>>();
-		if (this.tryGetEnabledEndpointsForHost(host, outParam)) {
+		OutParam<EnumSet<AutodiscoverEndpoints>> outParam =
+				new OutParam<EnumSet<AutodiscoverEndpoints>>();
+		if (tryGetEnabledEndpointsForHost(host, outParam)) {
 			endpoints = outParam.getParam();
 			url
-			.setParam(new URI(String.format(AutodiscoverSoapHttpsUrl,
-					host)));
+					.setParam(new URI(String.format(AutodiscoverSoapHttpsUrl,
+							host)));
 
 			// Make sure that at least one of the non-legacy endpoints is
 			// available.
 			if ((!endpoints.contains(AutodiscoverEndpoints.Soap)) &&
 					(!endpoints.contains(
 							AutodiscoverEndpoints.WsSecurity))) {
-				this
-				.traceMessage(
+				traceMessage(
 						TraceFlags.AutodiscoverConfiguration,
 						String
-						.format(
-								"No Autodiscover endpoints " +
-								"are available  for host %s",
-								host));
+								.format(
+										"No Autodiscover endpoints " +
+												"are available  for host %s",
+										host));
 
 				return false;
 			}
@@ -1378,14 +1351,13 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 			return true;
 		} else {
-			this
-			.traceMessage(
+			traceMessage(
 					TraceFlags.AutodiscoverConfiguration,
 					String
-					.format(
-							"No Autodiscover endpoints " +
-							"are available for host %s",
-							host));
+							.format(
+									"No Autodiscover endpoints " +
+											"are available for host %s",
+									host));
 
 			return false;
 		}
@@ -1402,24 +1374,23 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @throws URISyntaxException
 	 *             the URI Syntax exception
 	 */
-    protected List<URI> getAutodiscoverServiceUrls(String domainName, 
+	protected List<URI> getAutodiscoverServiceUrls(String domainName,
 			OutParam<Integer> scpHostCount) throws URISyntaxException {
-        List<URI> urls;
+		List<URI> urls;
 
-        urls = new ArrayList<URI>();
+		urls = new ArrayList<URI>();
 
-        scpHostCount.setParam(new Integer(urls.size()));
+		scpHostCount.setParam(new Integer(urls.size()));
 
-        // As a fallback, add autodiscover URLs base on the domain name.
-        urls.add(new URI(String.format(AutodiscoverLegacyHttpsUrl, 
+		// As a fallback, add autodiscover URLs base on the domain name.
+		urls.add(new URI(String.format(AutodiscoverLegacyHttpsUrl,
 				domainName)));
-        urls.add(new URI(String.format(AutodiscoverLegacyHttpsUrl, 
+		urls.add(new URI(String.format(AutodiscoverLegacyHttpsUrl,
 				"autodiscover." + domainName)));
 
-        return urls;
-    }
+		return urls;
+	}
 
-	
 	/**
 	 * Gets the list of autodiscover service hosts.
 	 * 
@@ -1436,13 +1407,13 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	protected List<String> getAutodiscoverServiceHosts(String domainName,
 			OutParam<Integer> outParam) throws URISyntaxException,
 			ClassNotFoundException {
-		
-		List<URI> urls = this.getAutodiscoverServiceUrls(domainName, outParam);
+
+		List<URI> urls = getAutodiscoverServiceUrls(domainName, outParam);
 		List<String> lst = new ArrayList<String>();
 		for (URI url : urls) {
 			lst.add(url.getHost());
 		}
-        return lst;
+		return lst;
 	}
 
 	/**
@@ -1458,8 +1429,8 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 */
 	private boolean tryGetEnabledEndpointsForHost(String host,
 			OutParam<EnumSet<AutodiscoverEndpoints>> endpoints)
-	throws Exception {
-		this.traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
+			throws Exception {
+		traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
 				"Determining which endpoints are enabled for host %s", host));
 
 		// We may get redirected to another host. And therefore need to limit
@@ -1471,7 +1442,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 			endpoints.setParam(EnumSet.of(AutodiscoverEndpoints.None));
 
-			HttpWebRequest request = new HttpClientWebRequest(this.getSimpleHttpConnectionManager());
+			HttpWebRequest request = new HttpClientWebRequest(getSimpleHttpConnectionManager());
 			try {
 				request.setUrl(autoDiscoverUrl.toURL());
 			} catch (MalformedURLException e) {
@@ -1482,15 +1453,15 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			request.setRequestMethod("GET");
 			request.setAllowAutoRedirect(false);
 			request.setPreAuthenticate(false);
-			request.setUseDefaultCredentials(this.getUseDefaultCredentials());
-			if (!this.getUseDefaultCredentials()) {
-				ExchangeCredentials serviceCredentials = this.getCredentials();
+			request.setUseDefaultCredentials(getUseDefaultCredentials());
+			if (!getUseDefaultCredentials()) {
+				ExchangeCredentials serviceCredentials = getCredentials();
 				if (null == serviceCredentials) {
 					throw new ServiceLocalException(Strings.
 							CredentialsRequired);
 				}
 
-				// Make sure that credentials have been 
+				// Make sure that credentials have been
 				// authenticated if required
 				serviceCredentials.preAuthenticate();
 
@@ -1507,19 +1478,18 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 			if (request != null) {
 				URI redirectUrl;
 				OutParam<URI> outParam = new OutParam<URI>();
-				if (this.tryGetRedirectionResponse(request, outParam)) {
+				if (tryGetRedirectionResponse(request, outParam)) {
 					redirectUrl = outParam.getParam();
-					this.traceMessage(TraceFlags.AutodiscoverConfiguration,
+					traceMessage(TraceFlags.AutodiscoverConfiguration,
 							String.format(
 									"Host returned redirection to host '%s'",
 									redirectUrl.getHost()));
 
 					host = redirectUrl.getHost();
 				} else {
-					endpoints.setParam(this
-							.getEndpointsFromHttpWebResponse(request));
+					endpoints.setParam(getEndpointsFromHttpWebResponse(request));
 
-					this.traceMessage(TraceFlags.AutodiscoverConfiguration,
+					traceMessage(TraceFlags.AutodiscoverConfiguration,
 							String.format(
 									"Host returned enabled endpoint flags: %s",
 									endpoints.getParam().toString()));
@@ -1530,13 +1500,13 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 				return false;
 			}
 			try {
-				request.close(); 
+				request.close();
 			} catch (Exception e2) {
 				request = null;
-			} 
+			}
 		}
 
-		this.traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
+		traceMessage(TraceFlags.AutodiscoverConfiguration, String.format(
 				"Maximum number of redirection hops %d exceeded",
 				AutodiscoverMaxRedirections));
 
@@ -1556,7 +1526,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	private EnumSet<AutodiscoverEndpoints> getEndpointsFromHttpWebResponse(
 			HttpWebRequest request) throws EWSHttpException {
 		EnumSet<AutodiscoverEndpoints> endpoints = EnumSet
-		.noneOf(AutodiscoverEndpoints.class);
+				.noneOf(AutodiscoverEndpoints.class);
 		endpoints.add(AutodiscoverEndpoints.Legacy);
 
 		if (!(request.getResponseHeaders().get(
@@ -1591,26 +1561,24 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	protected void traceResponse(HttpWebRequest request,
 			ByteArrayOutputStream memoryStream) throws XMLStreamException,
 			IOException, EWSHttpException {
-		this.traceHttpResponseHeaders(
+		traceHttpResponseHeaders(
 				TraceFlags.AutodiscoverResponseHttpHeaders, request);
 		String contentType = request.getResponseContentType();
 		if (!(contentType == null || contentType.isEmpty())) {
 			contentType = contentType.toLowerCase();
-			if (contentType.toLowerCase().startsWith("text/") || 
+			if (contentType.toLowerCase().startsWith("text/") ||
 					contentType.toLowerCase().
-					startsWith("application/soap")) {
-				this.traceXml(TraceFlags.AutodiscoverResponse, memoryStream);
+							startsWith("application/soap")) {
+				traceXml(TraceFlags.AutodiscoverResponse, memoryStream);
 			} else {
-				this.traceMessage(TraceFlags.AutodiscoverResponse,
-				"Non-textual response");
+				traceMessage(TraceFlags.AutodiscoverResponse,
+						"Non-textual response");
 			}
 		}
 	}
 
 	/**
-	 * Creates an HttpWebRequest instance and initializes it with the
-	 * appropriate parameters, based on the configuration of this service
-	 * object.
+	 * Creates an HttpWebRequest instance and initializes it with the appropriate parameters, based on the configuration of this service object.
 	 * 
 	 * @param url
 	 *            The URL that the HttpWebRequest should target.
@@ -1621,16 +1589,15 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *             the uRI syntax exception
 	 */
 	protected HttpWebRequest prepareHttpWebRequestForUrl(URI url)
-	throws ServiceLocalException, URISyntaxException {
+			throws ServiceLocalException, URISyntaxException {
 		return this.prepareHttpWebRequestForUrl(url, false,
 				// acceptGzipEncoding
 				false); // allowAutoRedirect
 	}
 
 	/**
-	 * Calls the redirection URL validation callback. If the redirection URL
-	 * validation callback is null, use the default callback which does not
-	 * allow following any redirections.
+	 * Calls the redirection URL validation callback. If the redirection URL validation callback is null, use the default callback which does not allow
+	 * following any redirections.
 	 * 
 	 * @param redirectionUrl
 	 *            The redirection URL.
@@ -1639,12 +1606,12 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *             the autodiscover local exception
 	 */
 	private boolean callRedirectionUrlValidationCallback(String redirectionUrl)
-	throws AutodiscoverLocalException {
-		IAutodiscoverRedirectionUrl callback = 
-			(this.redirectionUrlValidationCallback == null) ? this
-					: this.redirectionUrlValidationCallback;
+			throws AutodiscoverLocalException {
+		IAutodiscoverRedirectionUrl callback =
+				(redirectionUrlValidationCallback == null) ? this
+															: redirectionUrlValidationCallback;
 		return callback
-		.autodiscoverRedirectionUrlValidationCallback(redirectionUrl);
+				.autodiscoverRedirectionUrlValidationCallback(redirectionUrl);
 	}
 
 	/**
@@ -1656,30 +1623,31 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *             the exception
 	 */
 	@Override
-    protected void processHttpErrorResponse(HttpWebRequest httpWebResponse, 
+	protected void processHttpErrorResponse(HttpWebRequest httpWebResponse,
 			Exception webException) throws Exception {
-        this.internalProcessHttpErrorResponse(
-            httpWebResponse,
-            webException,
-            TraceFlags.AutodiscoverResponseHttpHeaders,
-            TraceFlags.AutodiscoverResponse);
-    }
-	
+		internalProcessHttpErrorResponse(
+				httpWebResponse,
+				webException,
+				TraceFlags.AutodiscoverResponseHttpHeaders,
+				TraceFlags.AutodiscoverResponse);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @seemicrosoft.exchange.webservices.AutodiscoverRedirectionUrlInterface#
 	 * autodiscoverRedirectionUrlValidationCallback(java.lang.String)
 	 */
+	@Override
 	public boolean autodiscoverRedirectionUrlValidationCallback(
 			String redirectionUrl) throws AutodiscoverLocalException {
-		return defaultAutodiscoverRedirectionUrlValidationCallback(
-				redirectionUrl);
+		return defaultAutodiscoverRedirectionUrlValidationCallback(redirectionUrl);
 	}
 
 	/**
 	 * Initializes a new instance of the "AutodiscoverService" class.
-	 * @throws ArgumentException 
+	 * 
+	 * @throws ArgumentException
 	 * 
 	 */
 	public AutodiscoverService() throws ArgumentException {
@@ -1691,10 +1659,10 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * 
 	 * @param requestedServerVersion
 	 *            The requested server version.
-	 * @throws ArgumentException 
+	 * @throws ArgumentException
 	 */
-	public AutodiscoverService(ExchangeVersion requestedServerVersion) 
-	throws ArgumentException {
+	public AutodiscoverService(ExchangeVersion requestedServerVersion)
+			throws ArgumentException {
 		this(null, null, requestedServerVersion);
 	}
 
@@ -1702,9 +1670,8 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * Initializes a new instance of the "AutodiscoverService" class.
 	 * 
 	 * @param domain
-	 *            The domain that will be used to determine the URL of the
-	 *            service.
-	 * @throws ArgumentException 
+	 *            The domain that will be used to determine the URL of the service.
+	 * @throws ArgumentException
 	 */
 	public AutodiscoverService(String domain) throws ArgumentException {
 		this(null, domain);
@@ -1714,11 +1681,10 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * Initializes a new instance of the "AutodiscoverService" class.
 	 * 
 	 * @param domain
-	 *            The domain that will be used to determine the URL of the
-	 *            service.
+	 *            The domain that will be used to determine the URL of the service.
 	 * @param requestedServerVersion
 	 *            The requested server version.
-	 * @throws ArgumentException 
+	 * @throws ArgumentException
 	 */
 	public AutodiscoverService(String domain,
 			ExchangeVersion requestedServerVersion) throws ArgumentException {
@@ -1730,7 +1696,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * 
 	 * @param url
 	 *            The URL of the service.
-	 * @throws ArgumentException 
+	 * @throws ArgumentException
 	 */
 	public AutodiscoverService(URI url) throws ArgumentException {
 		this(url, url.getHost());
@@ -1743,7 +1709,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            The URL of the service.
 	 * @param requestedServerVersion
 	 *            The requested server version.
-	 * @throws ArgumentException 
+	 * @throws ArgumentException
 	 */
 	public AutodiscoverService(URI url,
 			ExchangeVersion requestedServerVersion) throws ArgumentException {
@@ -1756,17 +1722,16 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param url
 	 *            The URL of the service.
 	 * @param domain
-	 *            The domain that will be used to determine the URL of the
-	 *            service.
-	 * @throws ArgumentException 
+	 *            The domain that will be used to determine the URL of the service.
+	 * @throws ArgumentException
 	 */
-	protected AutodiscoverService(URI url, String domain) 
-	throws ArgumentException {
+	protected AutodiscoverService(URI url, String domain)
+			throws ArgumentException {
 		super();
 		EwsUtilities.validateDomainNameAllowNull(domain, "domain");
 		this.url = url;
 		this.domain = domain;
-		this.dnsClient = new AutodiscoverDnsClient(this);
+		dnsClient = new AutodiscoverDnsClient(this);
 	}
 
 	/**
@@ -1775,11 +1740,10 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param url
 	 *            The URL of the service.
 	 * @param domain
-	 *            The domain that will be used to determine the URL of the
-	 *            service.
+	 *            The domain that will be used to determine the URL of the service.
 	 * @param requestedServerVersion
 	 *            The requested server version.
-	 * @throws ArgumentException 
+	 * @throws ArgumentException
 	 */
 	protected AutodiscoverService(URI url, String domain,
 			ExchangeVersion requestedServerVersion) throws ArgumentException {
@@ -1788,18 +1752,21 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 
 		this.url = url;
 		this.domain = domain;
-		this.dnsClient = new AutodiscoverDnsClient(this);
+		dnsClient = new AutodiscoverDnsClient(this);
 	}
 
 	/**
 	 * Initializes a new instance of the AutodiscoverService class.
-	 * @param service The other service.	
-	 * @param requestedServerVersion The requested server version.	
-	 */	
-	protected AutodiscoverService(ExchangeServiceBase service, 
+	 * 
+	 * @param service
+	 *            The other service.
+	 * @param requestedServerVersion
+	 *            The requested server version.
+	 */
+	protected AutodiscoverService(ExchangeServiceBase service,
 			ExchangeVersion requestedServerVersion) {
 		super(service, requestedServerVersion);
-		this.dnsClient = new AutodiscoverDnsClient(this);
+		dnsClient = new AutodiscoverDnsClient(this);
 	}
 
 	/**
@@ -1819,44 +1786,42 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            The SMTP addresses of the user.
 	 * @param userSettingNames
 	 *            The user setting names.
-	 * @return A UserResponse object containing the requested settings for the
-	 *         specified user.
+	 * @return A UserResponse object containing the requested settings for the specified user.
 	 * @throws Exception
 	 *             the exception
-	 *             
-	 * This method handles will run the entire Autodiscover "discovery" 
-	 * algorithm and will follow address and URL redirections.
+	 * 
+	 *             This method handles will run the entire Autodiscover "discovery" algorithm and will follow address and URL redirections.
 	 */
 	public GetUserSettingsResponse getUserSettings(String userSmtpAddress,
 			UserSettingName... userSettingNames) throws Exception {
 		List<UserSettingName> requestedSettings = new ArrayList<UserSettingName>();
 		for (UserSettingName userSettingName : userSettingNames) {
 			requestedSettings.add(userSettingName);
-		}		
+		}
 
-        if (userSmtpAddress == null || userSmtpAddress.isEmpty())
-        {
-            throw new ServiceValidationException(
+		if (userSmtpAddress == null || userSmtpAddress.isEmpty())
+		{
+			throw new ServiceValidationException(
 					Strings.InvalidAutodiscoverSmtpAddress);
-        }
+		}
 
-        if (requestedSettings.size() == 0)
-        {
-            throw new ServiceValidationException(
+		if (requestedSettings.size() == 0)
+		{
+			throw new ServiceValidationException(
 					Strings.InvalidAutodiscoverSettingsCount);
-        }
+		}
 
-        if (this.getRequestedServerVersion().compareTo(MinimumRequestVersionForAutoDiscoverSoapService) < 0)
-        {
-            return this.internalGetLegacyUserSettings(userSmtpAddress, 
+		if (getRequestedServerVersion().compareTo(MinimumRequestVersionForAutoDiscoverSoapService) < 0)
+		{
+			return this.internalGetLegacyUserSettings(userSmtpAddress,
 					requestedSettings);
-        }
-        else
-        {
-            return this.internalGetSoapUserSettings(userSmtpAddress, 
+		}
+		else
+		{
+			return internalGetSoapUserSettings(userSmtpAddress,
 					requestedSettings);
-        }
-		
+		}
+
 	}
 
 	/**
@@ -1866,19 +1831,18 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            the user smtp addresses
 	 * @param userSettingNames
 	 *            The user setting names.
-	 * @return A GetUserSettingsResponseCollection object containing the
-	 *         responses for each individual user.
+	 * @return A GetUserSettingsResponseCollection object containing the responses for each individual user.
 	 * @throws Exception
 	 *             the exception
 	 */
 	public GetUserSettingsResponseCollection getUsersSettings(
 			Iterable<String> userSmtpAddresses,
 			UserSettingName... userSettingNames) throws Exception {
-		 if (this.getRequestedServerVersion().compareTo(MinimumRequestVersionForAutoDiscoverSoapService) < 0) {
-             throw new ServiceVersionException(
-                 String.format(Strings.AutodiscoverServiceIncompatibleWithRequestVersion, 
-				 		MinimumRequestVersionForAutoDiscoverSoapService));
-         }
+		if (getRequestedServerVersion().compareTo(MinimumRequestVersionForAutoDiscoverSoapService) < 0) {
+			throw new ServiceVersionException(
+					String.format(Strings.AutodiscoverServiceIncompatibleWithRequestVersion,
+							MinimumRequestVersionForAutoDiscoverSoapService));
+		}
 		List<String> smtpAddresses = new ArrayList<String>();
 		smtpAddresses.addAll((Collection<? extends String>) userSmtpAddresses);
 		List<UserSettingName> settings = new ArrayList<UserSettingName>();
@@ -1894,11 +1858,10 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param domain
 	 *            The domain.
 	 * @param requestedVersion
-	 * 			  Requested version of the Exchange service.
+	 *            Requested version of the Exchange service.
 	 * @param domainSettingNames
 	 *            The domain setting names.
-	 * @return A DomainResponse object containing the requested settings for the
-	 *         specified domain.
+	 * @return A DomainResponse object containing the requested settings for the specified domain.
 	 * @throws Exception
 	 *             the exception
 	 */
@@ -1921,18 +1884,17 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @param domains
 	 *            the domains
 	 * @param requestedVersion
-	 * 			  Requested version of the Exchange service.
+	 *            Requested version of the Exchange service.
 	 * @param domainSettingNames
 	 *            The domain setting names.
-	 * @return A GetDomainSettingsResponseCollection object containing the
-	 *         responses for each individual domain.
+	 * @return A GetDomainSettingsResponseCollection object containing the responses for each individual domain.
 	 * @throws Exception
 	 *             the exception
 	 */
 	public GetDomainSettingsResponseCollection getDomainSettings(
-			Iterable<String> domains, ExchangeVersion requestedVersion, 
+			Iterable<String> domains, ExchangeVersion requestedVersion,
 			DomainSettingName... domainSettingNames)
-	throws Exception {
+			throws Exception {
 		List<DomainSettingName> settings = new ArrayList<DomainSettingName>();
 		for (DomainSettingName domainSettingName : domainSettingNames) {
 			settings.add(domainSettingName);
@@ -1943,34 +1905,31 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	}
 
 	/**
-	 * Gets the domain this service is bound to. When this property is
-	 * set, the domain
+	 * Gets the domain this service is bound to. When this property is set, the domain
 	 * 
 	 * name is used to automatically determine the Autodiscover service URL.
 	 * 
 	 * @return the domain
 	 */
 	public String getDomain() {
-		return this.domain;
+		return domain;
 	}
 
 	/**
-	 * Sets the domain this service is bound to. When this property is
-	 * set, the domain
-	 * name is used to automatically determine the Autodiscover service URL.
+	 * Sets the domain this service is bound to. When this property is set, the domain name is used to automatically determine the Autodiscover service URL.
 	 * 
 	 * @param value
 	 *            the new domain
-	 * @throws ArgumentException 
+	 * @throws ArgumentException
 	 */
 	public void setDomain(String value) throws ArgumentException {
 		EwsUtilities.validateDomainNameAllowNull(value, "Domain");
 
 		// If Domain property is set to non-null value, Url property is nulled.
 		if (value != null) {
-			this.url = null;
+			url = null;
 		}
-		this.domain = value;
+		domain = value;
 	}
 
 	/**
@@ -1979,7 +1938,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @return the url
 	 */
 	public URI getUrl() {
-		return this.url;
+		return url;
 	}
 
 	/**
@@ -1992,30 +1951,29 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 		// If Url property is set to non-null value, Domain property is set to
 		// host portion of Url.
 		if (value != null) {
-			this.domain = value.getHost();
+			domain = value.getHost();
 		}
-		this.url = value;
+		url = value;
 	}
 
 	public Boolean isExternal()
 	{
-		return this.isExternal; 
+		return isExternal;
 	}
 
 	protected void setIsExternal(Boolean value)
 	{
-		this.isExternal = value; 
+		isExternal = value;
 	}
-
 
 	/**
 	 * Gets the redirection url validation callback.
 	 * 
 	 * @return the redirection url validation callback
 	 */
-	public IAutodiscoverRedirectionUrl 
-	getRedirectionUrlValidationCallback() {
-		return this.redirectionUrlValidationCallback;
+	public IAutodiscoverRedirectionUrl
+			getRedirectionUrlValidationCallback() {
+		return redirectionUrlValidationCallback;
 	}
 
 	/**
@@ -2026,7 +1984,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 */
 	public void setRedirectionUrlValidationCallback(
 			IAutodiscoverRedirectionUrl value) {
-		this.redirectionUrlValidationCallback = value;
+		redirectionUrlValidationCallback = value;
 	}
 
 	/**
@@ -2035,7 +1993,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 * @return the dns server address
 	 */
 	protected String getDnsServerAddress() {
-		return this.dnsServerAddress;
+		return dnsServerAddress;
 	}
 
 	/**
@@ -2045,18 +2003,17 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            the new dns server address
 	 */
 	protected void setDnsServerAddress(String value) {
-		this.dnsServerAddress = value;
+		dnsServerAddress = value;
 	}
 
 	/**
-	 * Gets a value indicating whether the AutodiscoverService should
-	 * perform SCP (ServiceConnectionPoint) record lookup when determining
-	 * the Autodiscover service URL.
+	 * Gets a value indicating whether the AutodiscoverService should perform SCP (ServiceConnectionPoint) record lookup when determining the Autodiscover
+	 * service URL.
 	 * 
 	 * @return the enable scp lookup
 	 */
 	public boolean getEnableScpLookup() {
-		return this.enableScpLookup;
+		return enableScpLookup;
 	}
 
 	/**
@@ -2066,7 +2023,7 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 *            the new enable scp lookup
 	 */
 	public void setEnableScpLookup(boolean value) {
-		this.enableScpLookup = value;
+		enableScpLookup = value;
 	}
 
 	/*
@@ -2078,13 +2035,14 @@ IAutodiscoverRedirectionUrl, IFunctionDelegate {
 	 */
 	@Override
 	public Object func(List arg1, List arg2, ExchangeVersion arg3, URI arg4)
-	throws ServiceLocalException, Exception {
-		if (arg2.get(0).getClass().equals(DomainSettingName.class))
+			throws ServiceLocalException, Exception {
+		if (arg2.get(0).getClass().equals(DomainSettingName.class)) {
 			return internalGetDomainSettings(arg1, arg2, arg3, arg4);
-		else if (arg2.get(0).getClass().equals(UserSettingName.class))
+		} else if (arg2.get(0).getClass().equals(UserSettingName.class)) {
 			return internalGetUserSettings(arg1, arg2, arg3, arg4);
-		else
+		} else {
 			return null;
+		}
 	}
 
 }
