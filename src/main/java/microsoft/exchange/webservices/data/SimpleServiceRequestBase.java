@@ -34,7 +34,7 @@ abstract class SimpleServiceRequestBase extends ServiceRequestBase {
 			throws ServiceLocalException, Exception {
 		OutParam<HttpWebRequest> outParam =
 				new OutParam<HttpWebRequest>();
-		HttpWebRequest response = this.validateAndEmitRequest(outParam);
+		HttpWebRequest response = validateAndEmitRequest(outParam);
 		try {
 			return this.readResponse(response);
 		} catch (IOException ex) {
@@ -43,7 +43,7 @@ abstract class SimpleServiceRequestBase extends ServiceRequestBase {
 					format(Strings.ServiceRequestFailed, ex.getMessage(), ex));
 		} catch (Exception e) {
 			if (response != null) {
-				this.getService().traceHttpResponseHeaders(TraceFlags.
+				getService().traceHttpResponseHeaders(TraceFlags.
 						EwsResponseHttpHeaders, response);
 			}
 
@@ -72,7 +72,7 @@ abstract class SimpleServiceRequestBase extends ServiceRequestBase {
 		 * If tracing is enabled, we read the entire response into a MemoryStream so that we can pass it along to the ITraceListener. Then we parse the response
 		 * from the MemoryStream.
 		 */
-		if (this.getService().isTraceEnabledFor(TraceFlags.EwsResponse)) {
+		if (getService().isTraceEnabledFor(TraceFlags.EwsResponse)) {
 			ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
 			InputStream serviceResponseStream = ServiceRequestBase.
 					getResponseStream(response);
@@ -85,20 +85,20 @@ abstract class SimpleServiceRequestBase extends ServiceRequestBase {
 				}
 			}
 
-			this.traceResponse(response, memoryStream);
+			traceResponse(response, memoryStream);
 			ByteArrayInputStream memoryStreamIn =
 					new ByteArrayInputStream(
 							memoryStream.toByteArray());
 			EwsServiceXmlReader ewsXmlReader =
 					new EwsServiceXmlReader(memoryStreamIn,
-							this.getService());
+							getService());
 			serviceResponse = this.readResponse(ewsXmlReader);
 			serviceResponseStream.close();
 			memoryStream.flush();
 		}
 		else {
 			InputStream responseStream = ServiceRequestBase.getResponseStream(response);
-			EwsServiceXmlReader ewsXmlReader = new EwsServiceXmlReader(responseStream, this.getService());
+			EwsServiceXmlReader ewsXmlReader = new EwsServiceXmlReader(responseStream, getService());
 			serviceResponse = this.readResponse(ewsXmlReader);
 
 		}

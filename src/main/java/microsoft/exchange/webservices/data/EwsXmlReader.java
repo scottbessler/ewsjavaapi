@@ -52,7 +52,7 @@ class EwsXmlReader {
 	 * @throws Exception
 	 */
 	public EwsXmlReader(InputStream stream) throws Exception {
-		this.xmlReader = initializeXmlReader(stream);
+		xmlReader = initializeXmlReader(stream);
 	}
 
 	/**
@@ -67,7 +67,6 @@ class EwsXmlReader {
 			throws XMLStreamException, Exception {
 
 		XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-
 		return inputFactory.createXMLEventReader(stream);
 	}
 
@@ -107,8 +106,8 @@ class EwsXmlReader {
 		} else {
 			this.read(nodeType);
 
-			if ((!this.getLocalName().equals(localName)) ||
-					(this.getNamespaceUri() != EwsUtilities
+			if ((!getLocalName().equals(localName)) ||
+					(getNamespaceUri() != EwsUtilities
 							.getNamespaceUri(xmlNamespace))) {
 				throw new ServiceXmlDeserializationException(
 						String
@@ -117,8 +116,7 @@ class EwsXmlReader {
 										EwsUtilities
 												.getNamespacePrefix(
 												xmlNamespace),
-										localName, nodeType.toString(), this
-												.getName(), this.getNodeType()
+										localName, nodeType.toString(), getName(), getNodeType()
 												.toString()));
 			}
 		}
@@ -140,11 +138,11 @@ class EwsXmlReader {
 			XMLNodeType nodeType) throws Exception {
 		read(nodeType);
 
-		if ((!this.getLocalName().equals(localName)) ||
-				(!this.getNamespacePrefix().equals(namespacePrefix))) {
+		if ((!getLocalName().equals(localName)) ||
+				(!getNamespacePrefix().equals(namespacePrefix))) {
 			throw new ServiceXmlDeserializationException(String.format(
 					Strings.UnexpectedElement, namespacePrefix, localName,
-					nodeType.toString(), this.getName(), this.getNodeType()
+					nodeType.toString(), getName(), getNodeType()
 							.toString()));
 		}
 	}
@@ -171,11 +169,12 @@ class EwsXmlReader {
 				if (event.getEventType() == XMLStreamConstants.CHARACTERS) {
 					Characters characters = (Characters) event;
 					if (characters.isIgnorableWhiteSpace()
-							|| characters.isWhiteSpace())
+							|| characters.isWhiteSpace()) {
 						continue;
+					}
 				}
-				this.prevEvent = this.presentEvent;
-				this.presentEvent = event;
+				prevEvent = presentEvent;
+				presentEvent = event;
 				break;
 			}
 		}
@@ -191,10 +190,9 @@ class EwsXmlReader {
 	 */
 	public void read(XMLNodeType nodeType) throws Exception {
 		this.read();
-		if (!this.getNodeType().equals(nodeType)) {
+		if (!getNodeType().equals(nodeType)) {
 			throw new ServiceXmlDeserializationException(String
-					.format(Strings.UnexpectedElementType, nodeType, this
-							.getNodeType()));
+					.format(Strings.UnexpectedElementType, nodeType, getNodeType()));
 		}
 	}
 
@@ -208,8 +206,8 @@ class EwsXmlReader {
 	 *             thrown if attribute value can not be read
 	 */
 	private String readAttributeValue(QName qName) throws Exception {
-		if (this.presentEvent.isStartElement()) {
-			StartElement startElement = this.presentEvent.asStartElement();
+		if (presentEvent.isStartElement()) {
+			StartElement startElement = presentEvent.asStartElement();
 			Attribute attr = startElement.getAttributeByName(qName);
 			if (null != attr) {
 				return attr.getValue();
@@ -319,7 +317,7 @@ class EwsXmlReader {
 
 		String value = null;
 
-		if (!this.isEmptyElement()) {
+		if (!isEmptyElement()) {
 			value = this.readValue();
 		}
 		return value;
@@ -345,10 +343,11 @@ class EwsXmlReader {
 
 		String value = null;
 
-		if (!this.isEmptyElement()) {
+		if (!isEmptyElement()) {
 			value = this.readValue();
-		} else
+		} else {
 			this.read();
+		}
 
 		return value;
 	}
@@ -363,8 +362,7 @@ class EwsXmlReader {
 	public String readElementValue() throws Exception {
 		this.ensureCurrentNodeIsStartElement();
 
-		return this.readElementValue(this.getNamespacePrefix(), this
-				.getLocalName());
+		return this.readElementValue(getNamespacePrefix(), getLocalName());
 	}
 
 	/**
@@ -390,7 +388,7 @@ class EwsXmlReader {
 
 		T value = null;
 
-		if (!this.isEmptyElement()) {
+		if (!isEmptyElement()) {
 			value = this.readValue(cls);
 		}
 
@@ -413,7 +411,7 @@ class EwsXmlReader {
 
 		T value = null;
 
-		if (!this.isEmptyElement()) {
+		if (!isEmptyElement()) {
 			value = this.readValue(cls);
 		}
 
@@ -433,15 +431,15 @@ class EwsXmlReader {
 	public String readValue() throws XMLStreamException,
 			ServiceXmlDeserializationException {
 		String errMsg = String.format("Could not read value from %s.",
-				XMLNodeType.getString(this.presentEvent.getEventType()));
-		if (this.presentEvent.isStartElement()) {
+				XMLNodeType.getString(presentEvent.getEventType()));
+		if (presentEvent.isStartElement()) {
 			// Go to next event and check for Characters event
 			this.read();
-			if (this.presentEvent.isCharacters()) {
+			if (presentEvent.isCharacters()) {
 				StringBuffer elementValue = new StringBuffer();
 				do {
-					if (this.getNodeType().nodeType == XMLNodeType.CHARACTERS) {
-						Characters characters = (Characters) this.presentEvent;
+					if (getNodeType().nodeType == XMLNodeType.CHARACTERS) {
+						Characters characters = (Characters) presentEvent;
 						if (!characters.isIgnorableWhiteSpace()
 								&& !characters.isWhiteSpace()) {
 							if (characters.getData().length() != 0) {
@@ -450,7 +448,7 @@ class EwsXmlReader {
 						}
 					}
 					this.read();
-				} while (!this.presentEvent.isEndElement());
+				} while (!presentEvent.isEndElement());
 				// Characters chars = this.presentEvent.asCharacters();
 				// String elementValue = chars.getData();
 				// Advance to next event post Characters (ideally it will be End
@@ -462,17 +460,17 @@ class EwsXmlReader {
 						+ XMLNodeType.getString(XMLNodeType.CHARACTERS);
 				throw new ServiceXmlDeserializationException(errMsg);
 			}
-		} else if (this.presentEvent.getEventType() == XMLNodeType.CHARACTERS
-				&& this.presentEvent.isCharacters()) {
+		} else if (presentEvent.getEventType() == XMLNodeType.CHARACTERS
+				&& presentEvent.isCharacters()) {
 			/*
 			 * if(this.presentEvent.asCharacters().getData().equals("<")) {
 			 */
-			StringBuffer data = new StringBuffer(this.presentEvent
+			StringBuffer data = new StringBuffer(presentEvent
 					.asCharacters().getData());
 			do {
 				this.read();
-				if (this.getNodeType().nodeType == XMLNodeType.CHARACTERS) {
-					Characters characters = (Characters) this.presentEvent;
+				if (getNodeType().nodeType == XMLNodeType.CHARACTERS) {
+					Characters characters = (Characters) presentEvent;
 					if (!characters.isIgnorableWhiteSpace()
 							&& !characters.isWhiteSpace()) {
 						if (characters.getData().length() != 0) {
@@ -480,7 +478,7 @@ class EwsXmlReader {
 						}
 					}
 				}
-			} while (!this.presentEvent.isEndElement());
+			} while (!presentEvent.isEndElement());
 			return data.toString();// this.presentEvent. = new XMLEvent();
 			/*
 			 * } else { Characters chars = this.presentEvent.asCharacters();
@@ -509,10 +507,10 @@ class EwsXmlReader {
 	 */
 	public boolean tryReadValue(OutParam<String> value)
 			throws XMLStreamException, ServiceXmlDeserializationException {
-		if (!this.isEmptyElement()) {
+		if (!isEmptyElement()) {
 			this.read();
 
-			if (this.presentEvent.isCharacters()) {
+			if (presentEvent.isCharacters()) {
 				value.setParam(this.readValue());
 				return true;
 			} else {
@@ -558,7 +556,7 @@ class EwsXmlReader {
 
 		ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
 
-		buffer = Base64EncoderStream.decode(this.xmlReader.getElementText()
+		buffer = Base64EncoderStream.decode(xmlReader.getElementText()
 				.toString());
 		byteArrayStream.write(buffer);
 
@@ -579,7 +577,7 @@ class EwsXmlReader {
 		this.ensureCurrentNodeIsStartElement();
 
 		byte[] buffer = null;
-		buffer = Base64EncoderStream.decode(this.xmlReader.getElementText()
+		buffer = Base64EncoderStream.decode(xmlReader.getElementText()
 				.toString());
 		outputStream.write(buffer);
 		outputStream.flush();
@@ -664,8 +662,7 @@ class EwsXmlReader {
 	public void readEndElementIfNecessary(XmlNamespace xmlNamespace,
 			String localName) throws Exception {
 
-		if (!(this.isStartElement(xmlNamespace, localName) && this
-				.isEmptyElement())) {
+		if (!(this.isStartElement(xmlNamespace, localName) && isEmptyElement())) {
 			if (!this.isEndElement(xmlNamespace, localName)) {
 				this.readEndElement(xmlNamespace, localName);
 			}
@@ -678,7 +675,7 @@ class EwsXmlReader {
 	 * @return boolean
 	 */
 	public boolean isStartElement() {
-		return this.presentEvent.isStartElement();
+		return presentEvent.isStartElement();
 	}
 
 	/**
@@ -692,8 +689,8 @@ class EwsXmlReader {
 	 */
 	public boolean isStartElement(String namespacePrefix, String localName) {
 		boolean isStart = false;
-		if (this.presentEvent.isStartElement()) {
-			StartElement startElement = this.presentEvent.asStartElement();
+		if (presentEvent.isStartElement()) {
+			StartElement startElement = presentEvent.asStartElement();
 			QName qName = startElement.getName();
 			isStart = qName.getLocalPart().equals(localName)
 					&& qName.getPrefix().equals(namespacePrefix);
@@ -712,10 +709,9 @@ class EwsXmlReader {
 	 */
 	public boolean isStartElement(XmlNamespace xmlNamespace, String localName) {
 		return (this.isStartElement())
-				&& (this.getLocalName().equals(localName))
-				&& ((this.getNamespacePrefix() == EwsUtilities
-						.getNamespacePrefix(xmlNamespace)) || (this
-						.getNamespaceUri() == EwsUtilities
+				&& (getLocalName().equals(localName))
+				&& ((getNamespacePrefix() == EwsUtilities
+						.getNamespacePrefix(xmlNamespace)) || (getNamespaceUri() == EwsUtilities
 						.getNamespaceUri(xmlNamespace)));
 	}
 
@@ -730,8 +726,8 @@ class EwsXmlReader {
 	 */
 	public boolean isEndElement(String namespacePrefix, String localName) {
 		boolean isEndElement = false;
-		if (this.presentEvent.isEndElement()) {
-			EndElement endElement = this.presentEvent.asEndElement();
+		if (presentEvent.isEndElement()) {
+			EndElement endElement = presentEvent.asEndElement();
 			QName qName = endElement.getName();
 			isEndElement = qName.getLocalPart().equals(localName)
 					&& qName.getPrefix().equals(namespacePrefix);
@@ -754,8 +750,8 @@ class EwsXmlReader {
 		boolean isEndElement = false;
 		/*
 		 * if(localName.equals("Body")) { return true; } else
-		 */if (this.presentEvent.isEndElement()) {
-			EndElement endElement = this.presentEvent.asEndElement();
+		 */if (presentEvent.isEndElement()) {
+			EndElement endElement = presentEvent.asEndElement();
 			QName qName = endElement.getName();
 			isEndElement = qName.getLocalPart().equals(localName)
 					&& (qName.getPrefix().equals(
@@ -785,7 +781,7 @@ class EwsXmlReader {
 				this.readStartElement(namespacePrefix, localName);
 			}
 
-			if (!this.isEmptyElement()) {
+			if (!isEmptyElement()) {
 				do {
 					this.read();
 				} while (!this.isEndElement(namespacePrefix, localName));
@@ -810,7 +806,7 @@ class EwsXmlReader {
 				this.readStartElement(xmlNamespace, localName);
 			}
 
-			if (!this.isEmptyElement()) {
+			if (!isEmptyElement()) {
 				do {
 					this.read();
 				} while (!this.isEndElement(xmlNamespace, localName));
@@ -825,7 +821,7 @@ class EwsXmlReader {
 	 *             the exception
 	 */
 	public void skipCurrentElement() throws Exception {
-		this.skipElement(this.getNamespacePrefix(), this.getLocalName());
+		this.skipElement(getNamespacePrefix(), getLocalName());
 	}
 
 	/**
@@ -858,12 +854,12 @@ class EwsXmlReader {
 	 */
 	public void ensureCurrentNodeIsStartElement()
 			throws ServiceXmlDeserializationException {
-		XMLNodeType presentNodeType = new XMLNodeType(this.presentEvent
+		XMLNodeType presentNodeType = new XMLNodeType(presentEvent
 				.getEventType());
-		if (!this.presentEvent.isStartElement()) {
+		if (!presentEvent.isStartElement()) {
 			throw new ServiceXmlDeserializationException(String.format(
 					Strings.ExpectedStartElement,
-					this.presentEvent.toString(), presentNodeType.toString()));
+					presentEvent.toString(), presentNodeType.toString()));
 		}
 	}
 
@@ -880,8 +876,7 @@ class EwsXmlReader {
 	public void ensureCurrentNodeIsEndElement(XmlNamespace xmlNamespace,
 			String localName) throws Exception {
 		if (!this.isEndElement(xmlNamespace, localName)) {
-			if (!(this.isStartElement(xmlNamespace, localName) && this
-					.isEmptyElement())) {
+			if (!(this.isStartElement(xmlNamespace, localName) && isEmptyElement())) {
 				throw new ServiceXmlDeserializationException(
 						String
 								.format(
@@ -907,12 +902,12 @@ class EwsXmlReader {
 					Strings.CurrentPositionNotElementStart);
 		}
 
-		XMLEvent startEvent = this.presentEvent;
+		XMLEvent startEvent = presentEvent;
 		XMLEvent event;
 		StringBuilder str = new StringBuilder();
 		str.append(startEvent);
 		do {
-			event = this.xmlReader.nextEvent();
+			event = xmlReader.nextEvent();
 			str.append(event);
 		} while (!checkEndElement(startEvent, event));
 
@@ -935,12 +930,13 @@ class EwsXmlReader {
 					Strings.CurrentPositionNotElementStart);
 		}
 
-		XMLEvent startEvent = this.presentEvent;
+		XMLEvent startEvent = presentEvent;
 		StringBuilder str = new StringBuilder();
 		do {
-			XMLEvent event = this.xmlReader.nextEvent();
-			if (checkEndElement(startEvent, event))
+			XMLEvent event = xmlReader.nextEvent();
+			if (checkEndElement(startEvent, event)) {
 				break;
+			}
 			str.append(event);
 		} while (true);
 
@@ -995,12 +991,12 @@ class EwsXmlReader {
 
 		XMLEventReader eventReader = null;
 		InputStream in = null;
-		XMLEvent startEvent = this.presentEvent;
+		XMLEvent startEvent = presentEvent;
 		XMLEvent event = startEvent;
 		StringBuilder str = new StringBuilder();
 		str.append(startEvent);
 		do {
-			event = this.xmlReader.nextEvent();
+			event = xmlReader.nextEvent();
 			str.append(event);
 		} while (!checkEndElement(startEvent, event));
 
@@ -1039,8 +1035,8 @@ class EwsXmlReader {
 		if (!this.isStartElement()) {
 			return false;
 		}
-		XMLEvent startEvent = this.presentEvent;
-		XMLEvent event = this.presentEvent;
+		XMLEvent startEvent = presentEvent;
+		XMLEvent event = presentEvent;
 		do {
 			if (event.isStartElement()) {
 				QName qEName = event.asStartElement().getName();
@@ -1049,7 +1045,7 @@ class EwsXmlReader {
 					return true;
 				}
 			}
-			event = this.xmlReader.nextEvent();
+			event = xmlReader.nextEvent();
 		} while (!checkEndElement(startEvent, event));
 
 		return false;
@@ -1062,8 +1058,8 @@ class EwsXmlReader {
 	 */
 	public boolean hasAttributes() {
 
-		if (this.presentEvent.isStartElement()) {
-			StartElement startElement = this.presentEvent.asStartElement();
+		if (presentEvent.isStartElement()) {
+			StartElement startElement = presentEvent.asStartElement();
 			return startElement.getAttributes().hasNext();
 		} else {
 			return false;
@@ -1078,8 +1074,8 @@ class EwsXmlReader {
 	 *             the xML stream exception
 	 */
 	public boolean isEmptyElement() throws XMLStreamException {
-		boolean isPresentStartElement = this.presentEvent.isStartElement();
-		boolean isNextEndElement = this.xmlReader.peek().isEndElement();
+		boolean isPresentStartElement = presentEvent.isStartElement();
+		boolean isNextEndElement = xmlReader.peek().isEndElement();
 		return isPresentStartElement && isNextEndElement;
 	}
 
@@ -1092,12 +1088,12 @@ class EwsXmlReader {
 
 		String localName = null;
 
-		if (this.presentEvent.isStartElement()) {
-			localName = this.presentEvent.asStartElement().getName()
+		if (presentEvent.isStartElement()) {
+			localName = presentEvent.asStartElement().getName()
 					.getLocalPart();
 		} else {
 
-			localName = this.presentEvent.asEndElement().getName()
+			localName = presentEvent.asEndElement().getName()
 					.getLocalPart();
 		}
 		return localName;
@@ -1109,10 +1105,12 @@ class EwsXmlReader {
 	 * @return String
 	 */
 	protected String getNamespacePrefix() {
-		if (this.presentEvent.isStartElement())
-			return this.presentEvent.asStartElement().getName().getPrefix();
-		if (this.presentEvent.isEndElement())
-			return this.presentEvent.asEndElement().getName().getPrefix();
+		if (presentEvent.isStartElement()) {
+			return presentEvent.asStartElement().getName().getPrefix();
+		}
+		if (presentEvent.isEndElement()) {
+			return presentEvent.asEndElement().getName().getPrefix();
+		}
 		return null;
 	}
 
@@ -1124,12 +1122,12 @@ class EwsXmlReader {
 	protected String getNamespaceUri() {
 
 		String nameSpaceUri = null;
-		if (this.presentEvent.isStartElement()) {
-			nameSpaceUri = this.presentEvent.asStartElement().getName()
+		if (presentEvent.isStartElement()) {
+			nameSpaceUri = presentEvent.asStartElement().getName()
 					.getNamespaceURI();
 		} else {
 
-			nameSpaceUri = this.presentEvent.asEndElement().getName()
+			nameSpaceUri = presentEvent.asEndElement().getName()
 					.getNamespaceURI();
 		}
 		return nameSpaceUri;
@@ -1143,7 +1141,7 @@ class EwsXmlReader {
 	 *             the xML stream exception
 	 */
 	public XMLNodeType getNodeType() throws XMLStreamException {
-		XMLEvent event = this.presentEvent;
+		XMLEvent event = presentEvent;
 		XMLNodeType nodeType = new XMLNodeType(event.getEventType());
 		return nodeType;
 	}
@@ -1155,11 +1153,11 @@ class EwsXmlReader {
 	 */
 	protected Object getName() {
 		String name = null;
-		if (this.presentEvent.isStartElement()) {
-			name = this.presentEvent.asStartElement().getName().toString();
+		if (presentEvent.isStartElement()) {
+			name = presentEvent.asStartElement().getName().toString();
 		} else {
 
-			name = this.presentEvent.asEndElement().getName().toString();
+			name = presentEvent.asEndElement().getName().toString();
 		}
 		return name;
 	}
