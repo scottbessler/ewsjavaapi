@@ -357,16 +357,18 @@ public final class AutodiscoverService extends ExchangeServiceBase implements
 					redirectUrl.setParam(new URI(location));
 
 					// Check if URL is SSL and that the path matches.
-					if ((redirectUrl.getParam().getScheme().toLowerCase()
-							.equals("https")) &&
-							(redirectUrl.getParam().getPath()
-									.equalsIgnoreCase(
-									AutodiscoverLegacyPath))) {
-						traceMessage(TraceFlags.AutodiscoverConfiguration,
-								String.format("Redirection URL found: '%s'",
-										redirectUrl.getParam().toString()));
+					if (redirectUrl.getParam().getScheme() != null) {
+						if ((redirectUrl.getParam().getScheme().toLowerCase()
+								.equals("https")) &&
+								(redirectUrl.getParam().getPath()
+										.equalsIgnoreCase(
+										AutodiscoverLegacyPath))) {
+							traceMessage(TraceFlags.AutodiscoverConfiguration,
+									String.format("Redirection URL found: '%s'",
+											redirectUrl.getParam().toString()));
 
-						return true;
+							return true;
+						}
 					}
 				} catch (URISyntaxException ex) {
 					traceMessage(
