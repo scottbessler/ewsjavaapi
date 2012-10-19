@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>EWSJavaAPI</groupId>
 	<artifactId>EWSJavaAPI</artifactId>
-	<version>1.1.6riq</version>
+	<version>1.1.7riq</version>
 
 	<properties>
 		<maven.compiler.source>1.6</maven.compiler.source>

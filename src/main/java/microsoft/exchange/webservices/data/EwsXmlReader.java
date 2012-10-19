@@ -169,9 +169,12 @@ class EwsXmlReader {
 				if (event.getEventType() == XMLStreamConstants.CHARACTERS) {
 					Characters characters = (Characters) event;
 					if (characters.isIgnorableWhiteSpace()
-							|| characters.isWhiteSpace()) {
-						continue;
-					}
+				            || characters.isWhiteSpace())
+				    if (this.presentEvent!=null && this.presentEvent.isStartElement()) {
+				        //Ok, allow space values as a valid value
+				    } else {
+				        continue;
+				    }
 				}
 				prevEvent = presentEvent;
 				presentEvent = event;
