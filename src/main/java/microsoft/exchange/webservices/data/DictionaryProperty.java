@@ -26,7 +26,7 @@ public abstract class DictionaryProperty<TKey, TEntry extends DictionaryEntryPro
 		IComplexPropertyChangedDelegate {
 
 	/** The entries. */
-	private final Map<TKey, TEntry> entries = new HashMap<TKey, TEntry>();
+	public final Map<TKey, TEntry> entries = new HashMap<TKey, TEntry>();
 
 	/** The removed entries. */
 	private final Map<TKey, TEntry> removedEntries = new HashMap<TKey, TEntry>();
